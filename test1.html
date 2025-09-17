@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>老年糖尿病患者知识域标签体系</title>
+    <style>
+        /* 重置所有元素的默认样式 */
+        * {
+            margin: 0; /* 去除外边距 */
+            padding: 0; /* 去除内边距 */
+            box-sizing: border-box; /* 边框和内边距包含在元素的总宽度和高度内 */
+            font-family: 'Segoe UI', 'Microsoft JhengHei', Arial, sans-serif; /* 设置字体 */
+        }
+        
+        /* 设置页面主体样式 */
+        body {
+            background-color: #f9fafb; /* 背景颜色 */
+            color: #333; /* 字体颜色 */
+            line-height: 1.6; /* 行高 */
+            padding: 20px; /* 内边距 */
+            min-height: 100vh; /* 最小高度为视口高度 */
+            display: flex; /* 使用 flexbox 布局 */
+            justify-content: center; /* 水平居中 */
+            align-items: center; /* 垂直居中 */
+        }
+        
+        /* 容器样式 */
+        .container {
+            max-width: 900px; /* 最大宽度 */
+            width: 100%; /* 宽度占满父元素 */
+            background: white; /* 背景颜色 */
+            border-radius: 10px; /* 圆角 */
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05); /* 阴影效果 */
+            padding: 30px; /* 内边距 */
+            position: relative; /* 相对定位 */
+        }
+        
+        /* 头部样式 */
+        header {
+            text-align: center; /* 文本居中 */
+            margin-bottom: 10px; /* 下外边距 */
+            padding-bottom: 10px; /* 下内边距 */
+            border-bottom: 1px solid #eaeaea; /* 下边框 */
+        }
+        
+        /* 主标题样式 */
+        h1 {
+            color: #2c5282; /* 字体颜色 */
+            margin-bottom: 15px; /* 下外边距 */
+            font-size: 1.8rem; /* 字体大小 */
+            font-weight: 600; /* 字体粗细 */
+        }
+        
+        /* 树状图容器 */
+        .tree-scroll-container {
+            max-height: 500px; /* 最大高度 */
+            overflow-y: auto; /* 垂直滚动 */
+            padding: 20px; /* 内边距 */
+            border: 1px solid #eaeaea; /* 边框 */
+            border-radius: 6px; /* 圆角 */
+            margin-bottom: 20px; /* 下外边距 */
+            background: #fcfcfc; /* 背景颜色 */
+        }
+        
+        /* 自定义滚动条样式 */
+        .tree-scroll-container::-webkit-scrollbar {
+            width: 8px; /* 滚动条宽度 */
+        }
+        
+        .tree-scroll-container::-webkit-scrollbar-track {
+            background: #f1f1f1; /* 滚动条轨道背景 */
+            border-radius: 4px; /* 圆角 */
+        }
+        
+        .tree-scroll-container::-webkit-scrollbar-thumb {
+            background: #c5c5c5; /* 滚动条滑块颜色 */
+            border-radius: 4px; /* 圆角 */
+        }
+        
+        .tree-scroll-container::-webkit-scrollbar-thumb:hover {
+            background: #a8a8a8; /* 滚动条滑块悬停颜色 */
+        }
+        
+        /* 树状结构样式 */
+        .tree {
+            list-style: none; /* 移除默认列表样式 */
+            padding-left: 0; /* 左内边距 */
+            position: relative; /* 相对定位 */
+        }
+        
+        .tree li {
+            position: relative; /* 相对定位 */
+            padding: 8px 0 8px 30px; /* 上内边距、下内边距、左内边距 */
+            margin: 8px 0; /* 上外边距、下外边距 */
+        }
+        
+        /* 垂直线样式 */
+        .tree li::before {
+            content: ""; /* 伪元素内容为空 */
+            position: absolute; /* 绝对定位 */
+            top: 0; /* 顶部对齐 */
+            bottom: 0; /* 底部对齐 */
+            left: 12px; /* 左边距 */
+            border-left: 2px solid #a0aec0; /* 左边框 */
+        }
+        
+        /* 水平连接线样式 */
+        .tree li::after {
+            content: ""; /* 伪元素内容为空 */
+            position: absolute; /* 绝对定位 */
+            top: 18px; /* 顶部偏移 */
+            left: 12px; /* 左边距 */
+            width: 18px; /* 宽度 */
+            height: 2px; /* 高度 */
+            background: #a0aec0; /* 背景颜色 */
+        }
+        
+        /* 移除最后一个节点的垂直线 */
+        .tree li:last-child::before {
+            height: 18px; /* 高度 */
+        }
+        
+        /* 标签样式 */
+        .tree-node {
+            cursor: pointer; /* 鼠标指针样式 */
+            display: flex; /* 使用 flexbox 布局 */
+            align-items: center; /* 垂直居中 */
+            font-weight: 500; /* 字体粗细 */
+            color: #2d3748; /* 字体颜色 */
+            transition: all 0.2s ease; /* 过渡效果 */
+            padding: 12px 15px; /* 内边距 */
+            user-select: none; /* 禁止文本选择 */
+            border-radius: 6px; /* 圆角 */
+            background-color: #f8f9fa; /* 背景颜色 */
+            border: 1px solid #e9ecef; /* 边框 */
+            margin: 6px 0; /* 上外边距、下外边距 */
+            position: relative; /* 相对定位 */
+            z-index: 2; /* 叠加顺序 */
+        }
+        
+        .tree-node:hover {
+            background-color: #edf2f7; /* 悬停时背景颜色 */
+            border-color: #d2d6dc; /* 悬停时边框颜色 */
+        }
+        
+        .tree-node .icon {
+            margin-right: 12px; /* 右外边距 */
+            font-size: 14px; /* 图标字体大小 */
+            transition: transform 0.3s ease; /* 过渡效果 */
+            width: 16px; /* 宽度 */
+            text-align: center; /* 字体居中 */
+            color: #4a5568; /* 图标颜色 */
+        }
+        
+        .tree-node.collapsed .icon {
+            transform: rotate(-90deg); /* 折叠状态时图标旋转 */
+        }
+        
+        .tree ul {
+            list-style: none; /* 移除默认列表样式 */
+            padding-left: 30px; /* 左内边距 */
+            overflow: hidden; /* 隐藏溢出内容 */
+            transition: max-height 0.4s ease, opacity 0.3s ease; /* 过渡效果 */
+            max-height: 1000px; /* 最大高度 */
+            opacity: 1; /* 不透明度 */
+        }
+        
+        .tree ul.collapsed {
+            max-height: 0; /* 折叠状态下最大高度 */
+            opacity: 0; /* 折叠状态下不透明度 */
+            pointer-events: none; /* 禁用点击事件 */
+        }
+        
+        /* 叶子节点样式 */
+        .leaf-node {
+            display: flex; /* 使用 flexbox 布局 */
+            align-items: center; /* 垂直居中 */
+            padding: 10px 15px; /* 内边距 */
+            color: #4a5568; /* 字体颜色 */
+            transition: all 0.2s ease; /* 过渡效果 */
+            border-radius: 6px; /* 圆角 */
+            background-color: #f8f9fa; /* 背景颜色 */
+            border: 1px solid #e9ecef; /* 边框 */
+            margin: 6px 0; /* 上外边距、下外边距 */
+            position: relative; /* 相对定位 */
+            z-index: 2; /* 叠加顺序 */
+        }
+        
+        .leaf-node:hover {
+            background-color: #edf2f7; /* 悬停时背景颜色 */
+            border-color: #d2d6dc; /* 悬停时边框颜色 */
+        }
+        
+        .leaf-node .icon {
+            margin-right: 12px; /* 右外边距 */
+            font-size: 10px; /* 图标字体大小 */
+            color: #4a5568; /* 图标颜色 */
+            width: 16px; /* 宽度 */
+            text-align: center; /* 字体居中 */
+        }
+        
+        /* 层级颜色区分 */
+        .level-1 .tree-node {
+            background-color: #ebf8ff; /* 第一层背景颜色 */
+            border-color: #bee3f8; /* 第一层边框颜色 */
+            color: #2c5282; /* 第一层字体颜色 */
+            font-weight: 600; /* 第一层字体粗细 */
+        }
+        
+        .level-2 .tree-node {
+            background-color: #fef5e7; /* 第二层背景颜色 */
+            border-color: #fbd38d; /* 第二层边框颜色 */
+            color: #744210; /* 第二层字体颜色 */
+        }
+        
+        .level-3 .leaf-node {
+            background-color: #f8f9fa; /* 第三层背景颜色 */
+            border-color: #e9ecef; /* 第三层边框颜色 */
+        }
+        
+        /* 说明区域样式 */
+        .instructions {
+            background: #f1f8ff; /* 背景颜色 */
+            padding: 16px; /* 内边距 */
+            border-radius: 6px; /* 圆角 */
+            margin-top: 25px; /* 上外边距 */
+            font-size: 0.9rem; /* 字体大小 */
+            color: #2c5282; /* 字体颜色 */
+            border-left: 4px solid #4299e1; /* 左边框 */
+        }
+		
+        /* 说明区域样式2 */
+        .instructions2 {
+            background: #f1f8ff; /* 背景颜色 */
+            padding: 16px; /* 内边距 */
+            border-radius: 6px; /* 圆角 */
+            margin-top: 25px; /* 上外边距 */
+            font-size: 1.3rem; /* 字体大小 */
+            color: black; /* 字体颜色 */
+            border-left: 4px solid #4299e1; /* 左边框 */
+        }
+		
+        /* 按钮样式 */
+        .action-buttons {
+            display: flex; /* 使用 flexbox 布局 */
+            gap: 12px; /* 按钮间距 */
+            margin-top: 20px; /* 上外边距 */
+            justify-content: center; /* 水平居中 */
+        }
+        
+        .btn {
+            padding: 10px 18px; /* 内边距 */
+            border: 1px solid #d2d6dc; /* 边框 */
+            border-radius: 6px; /* 圆角 */
+            cursor: pointer; /* 鼠标指针样式 */
+            font-weight: 500; /* 字体粗细 */
+            transition: all 0.2s ease; /* 过渡效果 */
+            background-color: white; /* 背景颜色 */
+            color: #4a5568; /* 字体颜色 */
+        }
+        
+        .btn-expand {
+            border-color: #4299e1; /* 展开按钮边框颜色 */
+            color: #4299e1; /* 展开按钮字体颜色 */
+        }
+        
+        .btn-collapse {
+            border-color: #e53e3e; /* 折叠按钮边框颜色 */
+            color: #e53e3e; /* 折叠按钮字体颜色 */
+        }
+        
+        .btn:hover {
+            background-color: #f7fafc; /* 悬停时背景颜色 */
+            transform: translateY(-1px); /* 悬停时向上移动 */
+        }
+        
+        .btn-expand:hover {
+            background-color: #ebf8ff; /* 展开按钮悬停时背景颜色 */
+        }
+        
+        .btn-collapse:hover {
+            background-color: #fff5f5; /* 折叠按钮悬停时背景颜色 */
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px; /* 内边距 */
+            }
+            
+            h1 {
+                font-size: 1.5rem; /* 标题字体大小 */
+            }
+            
+            .tree-scroll-container {
+                max-height: 400px; /* 最大高度 */
+                padding: 15px; /* 内边距 */
+            }
+            
+            .tree li {
+                padding-left: 25px; /* 左内边距 */
+            }
+            
+            .tree ul {
+                padding-left: 25px; /* 左内边距 */
+            }
+            
+            .action-buttons {
+                flex-direction: column; /* 垂直排列按钮 */
+            }
+            
+            .btn {
+                width: 100%; /* 按钮宽度占满 */
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>老年糖尿病患者知识域标签体系</h1>
+        </header>
+        
+        <div class="tree-scroll-container">
+            <ul class="tree" id="qTree">
+                <!-- 诊断相关标签 -->
+                <li class="level-1">
+                    <div class="tree-node"><span class="icon">▼</span> 1. 診斷相關標籤</div>
+                    <ul>
+                        <li class="level-2">
+                            <div class="tree-node"><span class="icon">▼</span> 1.1 診斷標準</div>
+                            <ul class="collapsed">
+                                <li class="leaf-node level-3"><span class="icon">•</span> 國際標準化診斷指南</li>
+                                <li class="leaf-node level-3"><span class="icon">•</span> 臨床診斷流程</li>
+                            </ul>
+                        </li>
+                        <li class="level-2">
+                            <div class="tree-node"><span class="icon">▼</span> 1.2 症狀</div>
+                            <ul class="collapsed">
+                                <li class="leaf-node level-3"><span class="icon">•</span> 1.2.1 口乾多飲</li>
+                                <li class="leaf-node level-3"><span class="icon">•</span> 1.2.2 小便頻密</li>
+                                <li class="leaf-node level-3"><span class="icon">•</span> 1.2.3 容易肚餓</li>
+                                <li class="leaf-node level-3"><span class="icon">•</span> 1.2.4 體重下降</li>
+                            </ul>
+                        </li>
+                        <li class="level-2">
+                            <div class="tree-node"><span class="icon">▼</span> 1.3 化驗檢查</div>
+                            <ul class="collapsed">
+                                <li class="leaf-node level-3"><span class="icon">•</span> 1.3.1 隨機血糖</li>
+                                <li class="leaf-node level-3"><span class="icon">•</span> 1.3.2 空腹血糖</li>
+                                <li class="leaf-node level-3"><span class="icon">•</span> 1.3.3 餐後2小時血糖（糖水測試）</li>
+                                <li class="leaf-node level-3"><span class="icon">•</span> 1.3.4 糖化血紅素（HbA1c）</li>
+                            </ul>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+        
+        <div class="action-buttons">
+            <button class="btn btn-expand" id="qExpandAll">展開所有項目</button>
+            <button class="btn btn-collapse" id="qCollapseAll">折叠所有項目</button>
+        </div>
+        
+        <div class="instructions">
+            <p><strong>使用說明：</strong> 點擊每個項目前的箭頭圖標（▼）可以展開或折叠子項目。樹狀圖區域已設置高度限制，可通過滾動查看所有內容。您也可以使用下方的按鈕一次性展開或折叠所有項目。</p>
+        </div>
+		
+        <div class="instructions2">
+            <p><strong>請您在下方選項對本部分標簽體系進行評價。</strong> </p>
+        </div>		
+    </div>
+
+    <script>
+        // Qualtrics兼容代码
+        (function() {
+            // 确保DOM加载完成
+            function domReady(fn) {
+                if (document.readyState === "loading") {
+                    document.addEventListener("DOMContentLoaded", fn); // DOM加载完成后执行函数
+                } else {
+                    fn(); // 如果已加载，直接执行函数
+                }
+            }
+            
+            // 初始化树状图
+            function initTree() {
+                var tree = document.getElementById('qTree'); // 获取树状图元素
+                if (!tree) return; // 如果树状图元素不存在，则返回
+                
+                // 初始折叠所有节点
+                var allULs = tree.querySelectorAll('ul'); // 获取所有ul元素
+                for (var i = 0; i < allULs.length; i++) {
+                    if (allULs[i].parentElement.parentElement !== tree) {
+                        allULs[i].classList.add('collapsed'); // 添加collapsed类以折叠
+                    }
+                }
+                
+                // 初始设置所有toggle按钮状态
+                var allToggles = tree.querySelectorAll('.tree-node'); // 获取所有树节点
+                for (var j = 0; j < allToggles.length; j++) {
+                    if (allToggles[j].parentElement.parentElement !== tree) {
+                        allToggles[j].classList.add('collapsed'); // 添加collapsed类以折叠
+                    }
+                }
+                
+                // 添加点击事件
+                tree.addEventListener('click', function(e) {
+                    var target = e.target;
+                    var toggle = target.closest('.tree-node');
+                    
+                    if (toggle) {
+                        var parent = toggle.parentElement;
+                        var ul = parent.querySelector('ul');
+                        
+                        if (ul) {
+                            // 切换折叠/展开状态
+                            if (ul.classList.contains('collapsed')) {
+                                ul.classList.remove('collapsed');
+                                toggle.classList.remove('collapsed');
+                            } else {
+                                ul.classList.add('collapsed');
+                                toggle.classList.add('collapsed');
+                            }
+                            
+                            // 防止事件冒泡
+                            e.stopPropagation();
+                        }
+                    }
+                });
+                
+                // 展开所有节点
+                var expandBtn = document.getElementById('qExpandAll');
+                if (expandBtn) {
+                    expandBtn.addEventListener('click', function() {
+                        var uls = tree.querySelectorAll('ul');
+                        var toggles = tree.querySelectorAll('.tree-node');
+                        
+                        for (var i = 0; i < uls.length; i++) {
+                            uls[i].classList.remove('collapsed');
+                        }
+                        
+                        for (var j = 0; j < toggles.length; j++) {
+                            toggles[j].classList.remove('collapsed');
+                        }
+                    });
+                }
+                
+                // 折叠所有节点
+                var collapseBtn = document.getElementById('qCollapseAll');
+                if (collapseBtn) {
+                    collapseBtn.addEventListener('click', function() {
+                        var uls = tree.querySelectorAll('ul');
+                        var toggles = tree.querySelectorAll('.tree-node');
+                        
+                        for (var i = 0; i < uls.length; i++) {
+                            if (uls[i].parentElement.parentElement !== tree) {
+                                uls[i].classList.add('collapsed');
+                            }
+                        }
+                        
+                        for (var j = 0; j < toggles.length; j++) {
+                            if (toggles[j].parentElement.parentElement !== tree) {
+                                toggles[j].classList.add('collapsed');
+                            }
+                        }
+                    });
+                }
+            }
+            
+            // Qualtrics环境检测
+            if (typeof Qualtrics !== 'undefined' && typeof Qualtrics.SurveyEngine !== 'undefined') {
+                // Qualtrics环境
+                Qualtrics.SurveyEngine.addOnload(function() {
+                    initTree();
+                });
+            } else {
+                // 非Qualtrics环境
+                domReady(function() {
+                    initTree();
+                });
+            }
+        })();
+    </script>
+</body>
+</html>
