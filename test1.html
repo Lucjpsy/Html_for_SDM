@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>老年糖尿病患者[知识域标签]体系</title>
+    <title>老年糖尿病患者知识域标签体系</title>
     <style>
         /* 重置所有元素的默认样式 */
         * {
@@ -27,7 +27,7 @@
         
         /* 容器样式 */
         .container {
-            max-width: 2000px; /* 最大宽度 */
+            max-width: 1000px; /* 最大宽度 */
             width: 100%; /* 宽度占满父元素 */
             background: white; /* 背景颜色 */
             border-radius: 10px; /* 圆角 */
@@ -285,33 +285,46 @@
         
         /* 响应式设计 */
         @media (max-width: 768px) {
+            body {
+                padding: 0;
+            }
+
             .container {
                 padding: 20px; /* 内边距 */
+                border-radius: 0;
+                box-shadow: none;
+                min-height: 100vh;
             }
             
             h1 {
-                font-size: 1.5rem; /* 标题字体大小 */
+                font-size: 1.6rem; /* 标题字体大小 */
             }
             
             .tree-scroll-container {
-                max-height: 400px; /* 最大高度 */
-                padding: 15px; /* 内边距 */
+                max-height: none; /* 移除最大高度限制 */
+                padding: 10px;
             }
             
             .tree li {
-                padding-left: 25px; /* 左内边距 */
+                padding-left: 20px; /* 左内边距 */
             }
             
             .tree ul {
-                padding-left: 25px; /* 左内边距 */
+                padding-left: 20px; /* 左内边距 */
             }
             
             .action-buttons {
                 flex-direction: column; /* 垂直排列按钮 */
+                gap: 10px;
             }
             
             .btn {
                 width: 100%; /* 按钮宽度占满 */
+                padding: 12px;
+            }
+
+            .instructions2 {
+                font-size: 1.1rem;
             }
         }
     </style>
@@ -319,7 +332,7 @@
 <body>
     <div class="container">
         <header>
-            <h1>老年糖尿病患者[知识域标签]体系</h1>
+            <h1>老年糖尿病患者知识域标签体系</h1>
         </header>
         
         <div class="tree-scroll-container">
@@ -368,118 +381,115 @@
         </div>
 		
         <div class="instructions2">
-            <p><strong>請您在下方選項對本部分【標簽體系】進行評價。</strong> </p>
+            <p><strong>請您在下方選項對本部分標簽體系進行評價。</strong> </p>
         </div>		
     </div>
 
     <script>
-        // Qualtrics兼容代码
+        /**
+         * @file 此腳本處理問卷的樹狀圖功能。
+         * 它旨在與 Qualtrics 調查平台兼容。
+         */
         (function() {
-            // 确保DOM加载完成
+            'use strict';
+
+            /**
+             * 當 DOM 完全加載後執行一個函數。
+             * @param {function} fn 要執行的函數。
+             */
             function domReady(fn) {
-                if (document.readyState === "loading") {
-                    document.addEventListener("DOMContentLoaded", fn); // DOM加载完成后执行函数
+                if (document.readyState === "loading" || document.readyState === "interactive") {
+                    document.addEventListener("DOMContentLoaded", fn);
                 } else {
-                    fn(); // 如果已加载，直接执行函数
+                    fn();
                 }
             }
-            
-            // 初始化树状图
+
+            /**
+             * 初始化樹狀圖功能。
+             * 設置初始狀態和事件監聽器。
+             */
             function initTree() {
-                var tree = document.getElementById('qTree'); // 获取树状图元素
-                if (!tree) return; // 如果树状图元素不存在，则返回
-                
-                // 初始折叠所有节点
-                var allULs = tree.querySelectorAll('ul'); // 获取所有ul元素
-                for (var i = 0; i < allULs.length; i++) {
-                    if (allULs[i].parentElement.parentElement !== tree) {
-                        allULs[i].classList.add('collapsed'); // 添加collapsed类以折叠
-                    }
+                const tree = document.getElementById('qTree');
+                if (!tree) {
+                    console.error("未找到樹狀圖容器 #qTree。");
+                    return;
                 }
-                
-                // 初始设置所有toggle按钮状态
-                var allToggles = tree.querySelectorAll('.tree-node'); // 获取所有树节点
-                for (var j = 0; j < allToggles.length; j++) {
-                    if (allToggles[j].parentElement.parentElement !== tree) {
-                        allToggles[j].classList.add('collapsed'); // 添加collapsed类以折叠
-                    }
-                }
-                
-                // 添加点击事件
-                tree.addEventListener('click', function(e) {
-                    var target = e.target;
-                    var toggle = target.closest('.tree-node');
+
+                const expandBtn = document.getElementById('qExpandAll');
+                const collapseBtn = document.getElementById('qCollapseAll');
+
+                /**
+                 * 切換單個樹節點的狀態（展開/折叠）。
+                 * @param {HTMLElement} node - 要切換的樹節點。
+                 * @param {boolean} [expand] - 強制展開 (true) 或折叠 (false)。
+                 */
+                const toggleNode = (node, expand) => {
+                    const parentLi = node.parentElement;
+                    const childUl = parentLi.querySelector('ul');
+                    if (!childUl) return;
+
+                    const icon = node.querySelector('.icon');
+                    const isCollapsed = childUl.classList.contains('collapsed');
+                    const shouldExpand = expand === true || (expand !== false && isCollapsed);
+
+                    childUl.classList.toggle('collapsed', !shouldExpand);
+                    node.classList.toggle('collapsed', !shouldExpand);
                     
-                    if (toggle) {
-                        var parent = toggle.parentElement;
-                        var ul = parent.querySelector('ul');
-                        
-                        if (ul) {
-                            // 切换折叠/展开状态
-                            if (ul.classList.contains('collapsed')) {
-                                ul.classList.remove('collapsed');
-                                toggle.classList.remove('collapsed');
-                            } else {
-                                ul.classList.add('collapsed');
-                                toggle.classList.add('collapsed');
-                            }
-                            
-                            // 防止事件冒泡
-                            e.stopPropagation();
+                    if (icon) {
+                        const isNowCollapsed = childUl.classList.contains('collapsed');
+                        if (isNowCollapsed) {
+                            icon.style.transform = 'rotate(-90deg)';
+                        } else {
+                            icon.style.transform = 'rotate(0deg)';
                         }
                     }
+                };
+
+                /**
+                 * 切換樹中所有節點的狀態。
+                 * @param {boolean} expand - true 為全部展開，false 為全部折叠。
+                 */
+                const toggleAllNodes = (expand) => {
+                    tree.querySelectorAll('.tree-node').forEach(node => {
+                        // 折叠時，保持根節點展開
+                        const isRootNode = node.parentElement.parentElement === tree;
+                        if (expand === false && isRootNode) {
+                           toggleNode(node, true);
+                        } else {
+                           toggleNode(node, expand);
+                        }
+                    });
+                };
+
+                // 為單個節點點擊添加事件監聽器
+                tree.addEventListener('click', (e) => {
+                    const toggle = e.target.closest('.tree-node');
+                    if (toggle) {
+                        e.stopPropagation();
+                        toggleNode(toggle);
+                    }
                 });
-                
-                // 展开所有节点
-                var expandBtn = document.getElementById('qExpandAll');
+
+                // 為 "展開所有" 按鈕添加事件監聽器
                 if (expandBtn) {
-                    expandBtn.addEventListener('click', function() {
-                        var uls = tree.querySelectorAll('ul');
-                        var toggles = tree.querySelectorAll('.tree-node');
-                        
-                        for (var i = 0; i < uls.length; i++) {
-                            uls[i].classList.remove('collapsed');
-                        }
-                        
-                        for (var j = 0; j < toggles.length; j++) {
-                            toggles[j].classList.remove('collapsed');
-                        }
-                    });
+                    expandBtn.addEventListener('click', () => toggleAllNodes(true));
                 }
-                
-                // 折叠所有节点
-                var collapseBtn = document.getElementById('qCollapseAll');
+
+                // 為 "折叠所有" 按鈕添加事件監聽器
                 if (collapseBtn) {
-                    collapseBtn.addEventListener('click', function() {
-                        var uls = tree.querySelectorAll('ul');
-                        var toggles = tree.querySelectorAll('.tree-node');
-                        
-                        for (var i = 0; i < uls.length; i++) {
-                            if (uls[i].parentElement.parentElement !== tree) {
-                                uls[i].classList.add('collapsed');
-                            }
-                        }
-                        
-                        for (var j = 0; j < toggles.length; j++) {
-                            if (toggles[j].parentElement.parentElement !== tree) {
-                                toggles[j].classList.add('collapsed');
-                            }
-                        }
-                    });
+                    collapseBtn.addEventListener('click', () => toggleAllNodes(false));
                 }
+
+                // 設置初始狀態：折叠除第一級外的所有節點
+                toggleAllNodes(false);
             }
-            
-            // Qualtrics环境检测
+
+            // 檢查 Qualtrics 環境並初始化腳本
             if (typeof Qualtrics !== 'undefined' && typeof Qualtrics.SurveyEngine !== 'undefined') {
-                // Qualtrics环境
-                Qualtrics.SurveyEngine.addOnload(function() {
-                    initTree();
-                });
+                Qualtrics.SurveyEngine.addOnload(initTree);
             } else {
-                // 非Qualtrics环境
-                domReady(function() {
-                    initTree();
-                });
+                domReady(initTree);
             }
         })();
     </script>
