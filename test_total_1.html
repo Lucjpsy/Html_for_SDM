@@ -1,0 +1,2031 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <title>老年糖尿病患者知识域标签体系</title>
+  <style>
+    body { 
+        font-family: "Microsoft JhengHei", "Arial", sans-serif; 
+        background: #f8f8fc; 
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        padding: 20px;
+    }
+    .container {
+        max-width: 1000px;
+        width: 100%;
+        background: white;
+        border-radius: 10px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        padding: 30px;
+        position: relative;
+    }
+    #tree {
+        max-height: 60vh; /* 限制最大高度为视窗高度的60% */
+        overflow-y: auto; /* 添加垂直滚动条 */
+        overflow-x: hidden; /* 隐藏水平滚动条 */
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        padding: 15px;
+        background: #fafafa;
+        margin-top: 20px;
+    }
+    #tree::-webkit-scrollbar {
+        width: 8px;
+    }
+    #tree::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 4px;
+    }
+    #tree::-webkit-scrollbar-thumb {
+        background: #c1c1c1;
+        border-radius: 4px;
+    }
+    #tree::-webkit-scrollbar-thumb:hover {
+        background: #a8a8a8;
+    }
+    ul { list-style-type: none; margin-left: 1em; padding-left: 1em; border-left: 1px solid #ccc; }
+    .tree-label { cursor: pointer; padding: 2px 8px; border-radius: 6px; margin: 2px 0; display: inline-block; }
+    .collapsed > ul { display: none; }
+    .tree-label::before { content: "▶ "; color: #888; }
+    .expanded > .tree-label::before { content: "▼ "; color: #888; }
+    .leaf .tree-label::before { content: ""; }
+    /* 配色方案：根据层级自动配色 */
+    .level1 { background: #e3f2fd; color: #1565c0; font-weight: bold; }
+    .level2 { background: #ffe0b2; color: #e65100; font-weight: bold; }
+    .level3 { background: #c8e6c9; color: #2e7d32; }
+    .level4 { background: #f8bbd0; color: #ad1457; }
+    .level5 { background: #d1c4e9; color: #4527a0; }
+    .level6 { background: #fff9c4; color: #fbc02d; }
+        .main-title {
+          background: linear-gradient(90deg, #5f7f96 0%, #ffe0b2 100%);
+          color: #4527a0;
+          font-weight: bold;
+          font-size: 2.1em;
+          padding: 16px 32px;
+          border-radius: 16px;
+          margin-bottom: 18px;
+          box-shadow: 0 2px 12px #d1c4e944;
+          letter-spacing: 2px;
+          text-align: center;
+          border: 2px solid #d1c4e9;
+        }
+            .bg-switch-bar {
+              display: flex;
+              justify-content: flex-end;
+              align-items: center;
+              margin-bottom: 10px;
+              margin-top: -10px;
+            }
+            .bg-btn {
+              margin-left: 10px;
+              padding: 7px 18px;
+              border-radius: 8px;
+              border: none;
+              font-size: 15px;
+              font-weight: 500;
+              cursor: pointer;
+              background: #e3f2fd;
+              color: #4527a0;
+              transition: background 0.2s, color 0.2s;
+              box-shadow: 0 1px 6px #d1c4e944;
+            }
+            .bg-btn.dark { background: #23272f; color: #fff; }
+          .bg-btn.light { background: #e3eaf7; color: #1565c0; }
+          .bg-btn.white { background: #fff; color: #4527a0; border: 1px solid #eee; }
+          
+          /* 语言按钮默认样式 */
+          .lang-btn {
+            background: #f5f5f5;
+            color: #666;
+            border: 2px solid #ddd;
+            transition: all 0.3s ease;
+          }
+          
+          /* 语言按钮选中状态 - 更明显的效果 */
+          .lang-active {
+            background: linear-gradient(135deg, #4CAF50, #45a049) !important;
+            color: #fff !important;
+            border: 3px solid #2E7D32 !important;
+            box-shadow: 0 6px 20px rgba(76,175,80,0.4), 0 0 0 3px rgba(76,175,80,0.2);
+            transform: translateY(-3px) scale(1.08);
+            font-weight: bold;
+            z-index: 10;
+            position: relative;
+          }
+          
+          /* 语言按钮悬停效果 */
+          .lang-btn:hover:not(.lang-active) {
+            background: #e8f5e8;
+            color: #2E7D32;
+            border-color: #4CAF50;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(76,175,80,0.2);
+          }
+          body.bg-dark { background: #23272f !important; }
+          body.bg-light { background: #b9cfc6 !important; }
+          body.bg-white { background: #fff !important; }
+          
+          /* 深色模式下的树状图样式 */
+          body.bg-dark #tree {
+            background: #2d3748;
+            border-color: #4a5568;
+            color: #e2e8f0;
+          }
+          body.bg-dark #tree::-webkit-scrollbar-track {
+            background: #4a5568;
+          }
+          body.bg-dark #tree::-webkit-scrollbar-thumb {
+            background: #718096;
+          }
+          body.bg-dark #tree::-webkit-scrollbar-thumb:hover {
+            background: #a0aec0;
+          }
+          
+          /* 浅色模式下的树状图样式 */
+          body.bg-light #tree {
+            background: #f7fafc;
+            border-color: #cbd5e0;
+          }
+    /* 右键菜单按钮风格 */
+    #contextMenu {
+      display:none; position:absolute; z-index:9999; background:#fff; border:1px solid #ccc; box-shadow:2px 2px 8px #aaa; border-radius:10px; min-width:180px; padding:10px 8px;
+    }
+    .menu-item {
+      display: block;
+      margin: 6px 0;
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 15px;
+      font-weight: 500;
+      cursor: pointer;
+      border: none;
+      outline: none;
+      transition: background 0.2s, color 0.2s;
+    }
+  .menu-item[data-action*="2"] { background: #ffe0b2; color: #e65100; }
+  .menu-item[data-action*="3"] { background: #c8e6c9; color: #2e7d32; }
+  .menu-item[data-action*="4"] { background: #f8bbd0; color: #ad1457; }
+  .menu-item[data-action*="5"] { background: #d1c4e9; color: #4527a0; }
+  .menu-item:hover { filter: brightness(0.95); box-shadow: 0 0 0 2px #eee; }
+  .instructions2 {
+            background: #f1f8ff; /* 背景颜色 */
+            padding: 16px; /* 内边距 */
+            border-radius: 6px; /* 圆角 */
+            margin-top: 25px; /* 上外边距 */
+            font-size: 1.3rem; /* 字体大小 */
+            color: black; /* 字体颜色 */
+            border-left: 4px solid #4299e1; /* 左边框 */
+        }
+  </style>
+</head>
+<body>
+  <div class="container">
+  <h2 class="main-title">老年糖尿病患者知识域标签体系</h2>
+  <div class="bg-switch-bar">
+    <button class="bg-btn dark" onclick="switchBg('dark')">深色</button>
+    <button class="bg-btn light" onclick="switchBg('light')">淺色</button>
+    <button class="bg-btn white" onclick="switchBg('white')">純白</button>
+  </div>
+  <div class="lang-switch" style="position:absolute; top:12px; right:16px;">
+    <button id="lang-zh" class="bg-btn lang-btn lang-active" onclick="switchLanguage('zh')">繁體</button>
+    <button id="lang-en" class="bg-btn lang-btn" onclick="switchLanguage('en')">EN</button>
+  </div>
+
+  <!-- single tree container (duplicate removed) -->
+  <script>
+    // 背景色切换函数
+    function switchBg(mode) {
+      document.body.classList.remove('bg-dark', 'bg-light', 'bg-white');
+      if (mode === 'dark') document.body.classList.add('bg-dark');
+      if (mode === 'light') document.body.classList.add('bg-light');
+      if (mode === 'white') document.body.classList.add('bg-white');
+    }
+  // 读取完整 Markdown 内容（繁體中文）
+  const mdZh = `
+# 老年糖尿病患者知识域标签体系
+
+## 1. 診斷相關標籤
+
+### 1.1 **診斷標準**
+
+### 1.2 **症狀**
+
+#### 1.2.1 口乾多飲
+
+#### 1.2.2 小便頻密
+
+#### 1.2.3 容易肚餓
+
+#### 1.2.4 體重下降
+
+### 1.3 **化驗檢查**
+
+#### 1.3.1 隨機血糖
+
+#### 1.3.2 空腹血糖
+
+#### 1.3.3 餐後2小時血糖（糖水測試）
+
+#### 1.3.4 糖化血紅素（HbA1c）
+
+---
+
+## 2. 治療相關標籤
+
+### 2.1 **生活習慣調整**
+
+#### 2.1.1 **醫學營養治療**
+
+##### 2.1.1.1 營養狀況評估
+
+##### 2.1.1.2 餐單安排計劃
+
+##### 2.1.1.3 營養治療目標
+
+#### 2.1.2 **運動治療**
+
+##### 2.1.2.1 運動前健康評估
+
+##### 2.1.2.2 運動類型（帶氧運動、阻力訓練）
+
+##### 2.1.2.3 運動強度
+
+### 2.2 **藥物治療**
+
+#### 2.2.1 **藥物大類**
+
+##### 2.2.1.1 雙胍類（如：二甲雙胍）
+
+##### 2.2.1.2 磺脲類（如：格列齊特）
+
+##### 2.2.1.3 DPP-4抑制劑（如：西格列汀）
+
+##### 2.2.1.4 SGLT2抑制劑（如：恩格列淨）
+
+##### 2.2.1.5 GLP-1受體激動劑（如：利拉魯肽）
+
+##### 2.2.1.6 胰島素
+
+###### 2.2.1.6.1 長效胰島素
+
+###### 2.2.1.6.2 速效胰島素
+
+###### 2.2.1.6.3 預混胰島素
+
+##### 2.2.1.7 其他類
+
+#### 2.2.2 **通用藥物屬性**
+
+##### 2.2.2.1 藥物獲取途徑
+
+##### 2.2.2.2 藥物費用與資助
+
+##### 2.2.2.3 藥物功效與作用原理
+
+#### 2.2.3 **藥物益處**
+
+##### 2.2.3.1 對血糖控制嘅幫助（強效/中效/弱效；空腹/餐後）
+
+##### 2.2.3.2 對心血管嘅保護作用
+
+##### 2.2.3.3 對體重管理嘅影響（減重/中性/增重）
+
+##### 2.2.3.3 對腎臟保護作用
+
+##### 2.2.3.5 低血糖風險（低/中/高）
+
+##### 2.2.3.6 對生活質素嘅正面影響
+
+###### 2.2.3.6.1 身體健康與舒適度
+
+###### 2.2.3.6.2 日常活動與自理能力
+
+###### 2.2.3.6.3 生活安排與便利性
+
+###### 2.2.3.6.4 經濟負擔與壓力
+
+###### 2.2.3.6.5 工作與事業發展
+
+###### 2.2.3.6.6 個人嗜好與社交生活
+
+###### 2.2.3.6.7 自我形象與社會標籤
+
+###### 2.2.3.6.8 家庭關係與角色
+
+###### 2.2.3.6.9 情緒與心理健康
+
+#### 2.2.4 **藥物副作用**
+
+##### 2.2.4.1 胃腸道反應（噁心、腹瀉、嘔吐）
+
+##### 2.2.4.2 低血糖風險
+
+##### 2.2.4.3 泌尿生殖系統感染風險
+
+##### 2.2.4.4 體重增加
+
+##### 2.2.4.5 水腫
+
+##### 2.2.4.6 關節痛
+
+##### 2.2.4.7 胰腺炎風險
+
+##### 2.2.4.8 其他特定副作用
+
+##### 2.2.4.9 對生活質素嘅負面影響
+
+###### 2.2.4.9.1 身體健康與舒適度（如：長期腹瀉導致不適）
+
+###### 2.2.4.9.2 日常活動與自理能力（如：因頭暈無力難以買餸）
+
+###### 2.2.4.9.3 生活安排與便利性（如：要成日去廁所，唔敢出遠門）
+
+###### 2.2.4.9.4 經濟負擔與壓力（如：要買額外護理產品，使多咗錢）
+
+###### 2.2.4.9.5 工作與事業發展（如：開會時經常去廁所，好尷尬）
+
+###### 2.2.4.9.6 個人嗜好與社交生活（如：怕尷尬而拒絕同朋友食飯）
+
+###### 2.2.4.9.7 自我形象與社會標籤（如：覺得自己成為負累）
+
+###### 2.2.4.9.8 家庭關係與角色（如：因病情與家人產生摩擦）
+
+###### 2.2.4.9.9 情緒與心理健康（如：因管理疾病感到持續焦慮）
+
+#### 2.2.5 **用法用量**
+
+##### 2.2.5.1 用藥時間（餐前/餐中/餐後）
+
+##### 2.2.5.2 劑量調整
+
+##### 2.2.5.3 漏服處理
+
+##### 2.2.5.4 與食物相互作用
+
+#### 2.2.6 **特定人群注意**
+
+##### 2.2.6.1 長者劑量調整
+
+##### 2.2.6.2 腎功能不全者用量
+
+##### 2.2.6.3 肝功能不全者用量
+
+#### 2.2.7 **多種藥物治療挑戰**
+
+##### 2.2.7.1 藥物相互作用
+
+##### 2.2.7.2 食藥方案複雜性
+
+##### 2.2.7.3 對生活質素嘅影響
+
+###### 2.2.7.3.1 身體健康與舒適度
+
+###### 2.2.7.3.2 日常活動與自理能力
+
+###### 2.2.7.3.3 生活安排與便利性
+
+###### 2.2.7.3.3 經濟負擔與壓力
+
+###### 2.2.7.3.5 工作與事業發展
+
+###### 2.2.7.3.6 個人嗜好與社交生活
+
+###### 2.2.7.3.7 自我形象與社會標籤
+
+###### 2.2.7.3.8 家庭關係與角色
+
+###### 2.2.7.3.9 情緒與心理健康
+
+#### 2.2.8 **食藥依從性**（唔記得食藥、擔心副作用等）
+
+### 2.3 **非藥物治療**
+
+#### 2.3.1 減重手術
+
+#### 2.3.2 其他手術治療
+
+#### 2.3.3 新技術/試驗療法（如：人工胰島素泵、連續血糖監測）
+
+### 2.4 **治療方案**
+
+#### 2.4.1 治療費用負擔
+
+#### 2.4.2 治療方案選擇
+
+#### 2.4.3 預期治療效果
+
+#### 2.4.4 潛在風險擔憂
+
+#### 2.4.5 對生活質素影響
+
+##### 2.4.5.1 身體健康與舒適度
+
+##### 2.4.5.2 日常活動與自理能力
+
+##### 2.4.5.3 生活安排與便利性
+
+##### 2.4.5.4 經濟負擔與壓力
+
+##### 2.4.5.5 工作與事業發展
+
+##### 2.4.5.6 個人嗜好與社交生活
+
+##### 2.4.5.7 自我形象與社會標籤
+
+##### 2.4.5.8 家庭關係與角色
+
+##### 2.4.5.9 情緒與心理健康
+
+#### 2.4.6 對家庭影響
+
+##### 2.4.6.1 家庭經濟壓力
+
+##### 2.4.6.2 家人照顧負擔
+
+##### 2.4.6.3 家庭關係與氛圍
+
+---
+
+## 3. 併發症相關標籤
+
+### 3.1 **急性併發症**
+
+#### 3.1.1 **低血糖**
+
+##### 3.1.1.1 症狀識別與認知(手震、出汗、心悸等)
+
+##### 3.1.1.2 發生機制與原理(藥物過量、食唔夠嘢等)
+
+##### 3.1.1.3 未來風險預測(復發風險、嚴重程度)
+
+##### 3.1.1.4 檢查與診斷方法(血糖檢測頻率、連續血糖監測使用)
+
+##### 3.1.1.5 風險與誘發因素(藥物種類、腎功能狀況)
+
+##### 3.1.1.6 治療與管理方案(15-15法則、升糖素使用)
+
+##### 3.1.1.7 預後與康復評估(認知功能影響、生活質素)
+
+##### 3.1.1.8 對生活各方面影響
+
+###### 3.1.1.8.1 身體健康與舒適度（如：手震、出汗、心悸等不適感）
+
+###### 3.1.1.8.2 日常活動與自理能力（如：擔心獨自一人時暈倒無人幫）
+
+###### 3.1.1.8.3 生活安排與便利性（如：為預防低血糖，要隨身帶備食物）
+
+###### 3.1.1.8.4 經濟負擔與壓力（如：購買血糖試紙、升糖素等開支）
+
+###### 3.1.1.8.5 工作與事業發展（如：工作時發作影響專業形象）
+
+###### 3.1.1.8.6 個人嗜好與社交生活（如：避免參與運動或戶外活動）
+
+###### 3.1.1.8.7 自我形象與社會標籤（如：覺得自己係「病人」）
+
+###### 3.1.1.8.8 家庭關係與角色（如：家人過度擔憂或保護）
+
+###### 3.1.1.8.9 情緒與心理健康（如：對發作感到持續焦慮，不敢獨處）
+
+#### 3.1.2 **高血糖危象**
+
+##### 3.1.2.1 症狀識別與認知(口渴尿頻、意識改變等)
+
+##### 3.1.2.2 發生機制與原理(胰島素不足、壓力因素)
+
+##### 3.1.2.3 未來風險預測(器官損害風險)
+
+##### 3.1.2.4 檢查與診斷方法(酮體檢測、血氣分析)
+
+##### 3.1.2.5 風險與誘發因素(治療中斷、感染)
+
+##### 3.1.2.6 治療與管理方案(補水、胰島素調整)
+
+##### 3.1.2.7 預後與康復評估(死亡率、功能恢復)
+
+##### 3.1.2.8 對生活各方面影響
+
+###### 3.1.2.8.1 身體健康與舒適度（如：極度口渴、乏力等不適）
+
+###### 3.1.2.8.2 日常活動與自理能力（如：嚴重時無法自理）
+
+###### 3.1.2.8.3 生活安排與便利性（如：急需住院打亂所有計劃）
+
+###### 3.1.2.8.4 經濟負擔與壓力（如：急診與住院費用）
+
+###### 3.1.2.8.5 工作與事業發展（如：必須請假影響工作）
+
+###### 3.1.2.8.6 個人嗜好與社交生活（如：所有社交活動中止）
+
+###### 3.1.2.8.7 自我形象與社會標籤（如：因急症發作感到難堪）
+
+###### 3.1.2.8.8 家庭關係與角色（如：緊急情況下為家人帶來壓力）
+
+###### 3.1.2.8.9 情緒與心理健康（如：對再次發作感到恐懼）
+
+#### 3.1.3 **乳酸酸中毒**
+
+##### 3.1.3.1 症狀識別與認知(呼吸深快、意識狀態改變)
+
+##### 3.1.3.2 發生機制與原理(乳酸代謝障礙)
+
+##### 3.1.3.3 未來風險預測(復發風險)
+
+##### 3.1.3.3 檢查與診斷方法(乳酸檢測)
+
+##### 3.1.3.5 風險與誘發因素(腎功能不全、藥物使用)
+
+##### 3.1.3.6 治療與管理方案(支援治療、藥物調整)
+
+##### 3.1.3.7 預後與康復評估(器官功能影響)
+
+##### 3.1.3.8 對生活各方面影響
+
+###### 3.1.3.8.1 身體健康與舒適度（如：全身不适、呼吸困難）
+
+###### 3.1.3.8.2 日常活動與自理能力（如：活動能力嚴重受限）
+
+###### 3.1.3.8.3 生活安排與便利性（如：需要緊急醫療救助）
+
+###### 3.1.3.8.4 經濟負擔與壓力（如：重症監護費用高昂）
+
+###### 3.1.3.8.5 工作與事業發展（如：長期病假影響職業發展）
+
+###### 3.1.3.8.6 個人嗜好與社交生活（如：無法參與任何活動）
+
+###### 3.1.3.8.7 自我形象與社會標籤（如：認為自己健康狀況極差）
+
+###### 3.1.3.8.8 家庭關係與角色（如：需要家人全天候照顧）
+
+###### 3.1.3.8.9 情緒與心理健康（如：對預後感到悲觀）
+
+### 3.2 **慢性併發症**
+
+#### 3.2.1 **糖尿病腎病**
+
+##### 3.2.1.1 症狀識別與認知（水腫、尿毒症症狀）
+
+##### 3.2.1.2 發生機制與原理（腎小球損傷、纖維化）
+
+##### 3.2.1.3 未來風險預測（腎功能衰退速度）
+
+##### 3.2.1.4 檢查與診斷方法（尿微量白蛋白檢測）
+
+##### 3.2.1.5 風險與誘發因素（血糖控制、血壓）
+
+##### 3.2.1.6 治療與管理方案（血糖血壓控制、RAAS抑制劑）
+
+##### 3.2.1.7 預後與康復評估（末期腎病風險）
+
+##### 3.2.1.8 對生活各方面影響
+
+###### 3.2.1.8.1 身體健康與舒適度（如：疲倦、水腫、皮膚瘙癢）
+
+###### 3.2.1.8.2 日常活動與自理能力（如：越來越容易疲倦）
+
+###### 3.2.1.8.3 生活安排與便利性（如：嚴格限制飲水、飲食；每週多次洗腎）
+
+###### 3.2.1.8.4 經濟負擔與壓力（如：洗腎費用龐大，可能影響家庭經濟）
+
+###### 3.2.1.8.5 工作與事業發展（如：洗腎時間固定，難以全職工作）
+
+###### 3.2.1.8.6 個人嗜好與社交生活（如：無法長途旅行，社交受限）
+
+###### 3.2.1.8.7 自我形象與社會標籤（如：因水腫或洗腎導管感到自卑）
+
+###### 3.2.1.8.8 家庭關係與角色（如：家人需要協助往返洗腎中心）
+
+###### 3.2.1.8.9 情緒與心理健康（如：對需要洗腎感到焦慮抑鬱）
+
+#### 3.2.2 **糖尿病視網膜病變**
+
+##### 3.2.2.1 症狀識別與認知（視力模糊、飛蚊症）
+
+##### 3.2.2.2 發生機制與原理（微血管損傷、新生血管）
+
+##### 3.2.2.3 未來風險預測（視力喪失風險）
+
+##### 3.2.2.4 檢查與診斷方法（眼底檢查）
+
+##### 3.2.2.5 風險與誘發因素（病史長短、血糖控制）
+
+##### 3.2.2.6 治療與管理方案（激光治療、抗VEGF藥物）
+
+##### 3.2.2.7 預後與康復評估（視力預後）
+
+##### 3.2.2.8 對生活各方面影響
+
+###### 3.2.2.8.1 身體健康與舒適度（如：眼痛、視物變形）
+
+###### 3.2.2.8.2 日常活動與自理能力（如：閱讀、煮飯、睇路困難）
+
+###### 3.2.2.8.3 生活安排與便利性（如：無法駕駛，出行依賴他人）
+
+###### 3.2.2.8.4 經濟負擔與壓力（如：眼針藥物費用昂貴）
+
+###### 3.2.2.8.5 工作與事業發展（如：許多職業對視力有要求）
+
+###### 3.2.2.8.6 個人嗜好與社交生活（如：無法享受看電視、行山等嗜好）
+
+###### 3.2.2.8.7 自我形象與社會標籤（如：因視障被貼上「殘疾」標籤）
+
+###### 3.2.2.8.8 家庭關係與角色（如：需要家人照顧日常生活）
+
+###### 3.2.2.8.9 情緒與心理健康（如：對失去視力感到極度恐懼）
+
+#### 3.2.3 **糖尿病神經病變**
+
+##### 3.2.3.1 症狀識別與認知（麻痹刺痛、感覺異常）
+
+##### 3.2.3.2 發生機制與原理（多元醇通路、氧化應激）
+
+##### 3.2.3.3 未來風險預測（潰瘍風險、功能惡化）
+
+##### 3.2.3.3 檢查與診斷方法（10克單絲測試）
+
+##### 3.2.3.5 風險與誘發因素（血糖控制、病史）
+
+##### 3.2.3.6 治療與管理方案（疼痛管理、腳部護理）
+
+##### 3.2.3.7 預後與康復評估（生活質素影響）
+
+##### 3.2.3.8 對生活各方面影響
+
+###### 3.2.3.8.1 身體健康與舒適度（如：針刺痛、灼燒感、夜間加劇）
+
+###### 3.2.3.8.2 日常活動與自理能力（如：手腳麻木導致拿不穩東西）
+
+###### 3.2.3.8.3 生活安排與便利性（如：每日需要仔細檢查腳部）
+
+###### 3.2.3.8.4 經濟負擔與壓力（如：止痛藥、特殊鞋墊開支）
+
+###### 3.2.3.8.5 工作與事業發展（如：手部不靈活影響精細操作）
+
+###### 3.2.3.8.6 個人嗜好與社交生活（如：因疼痛拒絕社交邀請）
+
+###### 3.2.3.8.7 自我形象與社會標籤（如：覺得自己「未老先衰」）
+
+###### 3.2.3.8.8 家庭關係與角色（如：因疼痛而情緒暴躁影響關係）
+
+###### 3.2.3.8.9 情緒與心理健康（如：因慢性疼痛導致抑鬱）
+
+#### 3.2.4 **糖尿病腳**
+
+##### 3.2.4.1 症狀識別與認知（感覺異常、潰瘍表現）
+
+##### 3.2.4.2 發生機制與原理（神經血管病變交互影響）
+
+##### 3.2.4.3 未來風險預測（截肢風險、感染擴散）
+
+##### 3.2.4.4 檢查與診斷方法（腳部全面檢查）
+
+##### 3.2.4.5 風險與誘發因素（血管疾病、腳部畸形）
+
+##### 3.2.4.6 治療與管理方案（潰瘍清創、減壓處理）
+
+##### 3.2.4.7 預後與康復評估（愈合時間、功能恢復）
+
+##### 3.2.4.8 對生活各方面影響
+
+###### 3.2.4.8.1 身體健康與舒適度（如：傷口疼痛、異味）
+
+###### 3.2.4.8.2 日常活動與自理能力（如：行動極度不便，甚至臥床）
+
+###### 3.2.4.8.3 生活安排與便利性（如：頻繁覆診換藥，時間成本高）
+
+###### 3.2.4.8.4 經濟負擔與壓力（如：傷口護理產品、負壓治療費用）
+
+###### 3.2.4.8.5 工作與事業發展（如：完全無法工作，可能失業）
+
+###### 3.2.4.8.6 個人嗜好與社交生活（如：因行動不便和異味回避社交）
+
+###### 3.2.4.8.7 自我形象與社會標籤（如：對腳部外觀或截肢感到自卑）
+
+###### 3.2.4.8.8 家庭關係與角色（如：需要家人協助傷口護理，負擔重）
+
+###### 3.2.4.8.9 情緒與心理健康（如：對截肢風險感到極度焦慮和絕望）
+
+#### 3.2.5 **下肢動脈疾病**
+
+##### 3.2.5.1 症狀識別與認知（間歇性跛行、休息痛）
+
+##### 3.2.5.2 發生機制與原理（動脈粥樣硬化）
+
+##### 3.2.5.3 未來風險預測（肢體缺血進展）
+
+##### 3.2.5.4 檢查與診斷方法（踝肱指數測量）
+
+##### 3.2.5.5 風險與誘發因素（吸煙、血脂異常）
+
+##### 3.2.5.6 治療與管理方案（運動康復、血管重建）
+
+##### 3.2.5.7 預後與康復評估（肢體保留可能性）
+
+##### 3.2.5.8 對生活各方面影響
+
+###### 3.2.5.8.1 身體健康與舒適度（如：行走時小腿劇痛、休息痛）
+
+###### 3.2.5.8.2 日常活動與自理能力（如：行走距離大幅縮短）
+
+###### 3.2.5.8.3 生活安排與便利性（如：出行需要計劃休息點）
+
+###### 3.2.5.8.4 經濟負擔與壓力（如：通波仔或搭橋手術費用）
+
+###### 3.2.5.8.5 工作與事業發展（如：需要體力或行走的工作受影響）
+
+###### 3.2.5.8.6 個人嗜好與社交生活（如：無法行山、行街）
+
+###### 3.2.5.8.7 自我形象與社會標籤（如：覺得自己「行得慢」阻住人）
+
+###### 3.2.5.8.8 家庭關係與角色（如：家人需要遷就其行走速度）
+
+###### 3.2.5.8.9 情緒與心理健康（如：因活動能力下降感到沮喪）
+
+### 3.3 **常見共存疾病**
+
+#### 3.3.1 **心臟衰竭**
+
+##### 3.3.1.1 症狀識別與認知（呼吸困難、水腫）
+
+##### 3.3.1.2 發生機制與原理（心肌病變、冠狀動脈疾病）
+
+##### 3.3.1.3 未來風險預測（心功能惡化風險）
+
+##### 3.3.1.4 檢查與診斷方法（心臟超聲波）
+
+##### 3.3.1.5 風險與誘發因素（血糖控制、高血壓）
+
+##### 3.3.1.6 治療與管理方案（藥物優化、器械治療）
+
+##### 3.3.1.7 預後與康復評估（生存期預測）
+
+##### 3.3.1.8 對生活各方面影響
+
+###### 3.3.1.8.1 身體健康與舒適度（如：氣促、平躺困難）
+
+###### 3.3.1.8.2 日常活動與自理能力（如：行幾步路就好喘）
+
+###### 3.3.1.8.3 生活安排與便利性（如：需要計住每日飲水量）
+
+###### 3.3.1.8.4 經濟負擔與壓力（如：長期食貴價心臟藥）
+
+###### 3.3.1.8.5 工作與事業發展（如：無法從事體力勞動）
+
+###### 3.3.1.8.6 個人嗜好與社交生活（如：無法參與任何消耗體力嘅活動）
+
+###### 3.3.1.8.7 自我形象與社會標籤（如：因水腫覺得自己「好腫」）
+
+###### 3.3.1.8.8 家庭關係與角色（如：家人擔心其隨時發病）
+
+###### 3.3.1.8.9 情緒與心理健康（如：對預後感到擔憂，活得小心翼翼）
+
+#### 3.3.2 **骨質疏鬆**
+
+##### 3.3.2.1 症狀識別與認知（無症狀至骨折）
+
+##### 3.3.2.2 發生機制與原理（骨代謝異常）
+
+##### 3.3.2.3 未來風險預測（骨折風險評估）
+
+##### 3.3.2.4 檢查與診斷方法（骨密度檢測）
+
+##### 3.3.2.5 風險與誘發因素（年齡、維生素D缺乏）
+
+##### 3.3.2.6 治療與管理方案（抗骨質疏鬆藥物）
+
+##### 3.3.2.7 預後與康復評估（功能恢復可能性）
+
+##### 3.3.2.8 對生活各方面影響
+
+###### 3.3.2.8.1 身體健康與舒適度（如：骨折後劇痛、身高變矮）
+
+###### 3.3.2.8.2 日常活動與自理能力（如：骨折後活動能力嚴重受限）
+
+###### 3.3.2.8.3 生活安排與便利性（如：家居要進行防跌倒改造）
+
+###### 3.3.2.8.4 經濟負擔與壓力（如：骨藥費用、家居改造開支）
+
+###### 3.3.2.8.5 工作與事業發展（如：病假休養影響工作）
+
+###### 3.3.2.8.6 個人嗜好與社交生活（如：避免一切有跌倒風險的活動）
+
+###### 3.3.2.8.7 自我形象與社會標籤（如：因駝背影響外觀自信）
+
+###### 3.3.2.8.8 家庭關係與角色（如：家人擔心其跌倒，過度保護）
+
+###### 3.3.2.8.9 情緒與心理健康（如：對跌倒和骨折產生恐懼）
+
+#### 3.3.3 **肌少症**
+
+##### 3.3.3.1 症狀識別與認知（肌力下降、行路變慢）
+
+##### 3.3.3.2 發生機制與原理（胰島素抵抗、炎症）
+
+##### 3.3.3.3 未來風險預測（功能障礙進展）
+
+##### 3.3.3.4 檢查與診斷方法（握力測試）
+
+##### 3.3.3.5 風險與誘發因素（營養狀況、活動水平）
+
+##### 3.3.3.6 治療與管理方案（阻力訓練、營養支援）
+
+##### 3.3.3.7 預後與康復評估（功能狀態維持）
+
+##### 3.3.3.8 對生活各方面影響
+
+###### 3.3.3.8.1 身體健康與舒適度（如：容易疲倦、乏力）
+
+###### 3.3.3.8.2 日常活動與自理能力（如：擰唔開樽蓋、行得慢）
+
+###### 3.3.3.8.3 生活安排與便利性（如：買餸要分幾次拿）
+
+###### 3.3.3.8.4 經濟負擔與壓力（如：購買營養補充品開支）
+
+###### 3.3.3.8.5 工作與事業發展（如：從事體力工作感到力不從心）
+
+###### 3.3.3.8.6 個人嗜好與社交生活（如：無法參與需要體力的活動）
+
+###### 3.3.3.8.7 自我形象與社會標籤（如：覺得自己「無用」）
+
+###### 3.3.3.8.8 家庭關係與角色（如：需要家人協助完成家務）
+
+###### 3.3.3.8.9 情緒與心理健康（如：因能力下降感到無助）
+
+#### 3.3.4 **認知障礙**
+
+##### 3.3.4.1 症狀識別與認知（記憶力減退、執行功能下降）
+
+##### 3.3.4.2 發生機制與原理（腦血管病變、胰島素抵抗）
+
+##### 3.3.4.3 未來風險預測（痴呆轉化風險）
+
+##### 3.3.4.4 檢查與診斷方法（認知功能篩查）
+
+##### 3.3.4.5 風險與誘發因素（病史、腦血管疾病）
+
+##### 3.3.4.6 治療與管理方案（血糖控制優化）
+
+##### 3.3.4.7 預後與康復評估（獨立生活能力）
+
+##### 3.3.4.8 對生活各方面影響
+
+###### 3.3.4.8.1 身體健康與舒適度（如：腦霧、疲倦）
+
+###### 3.3.4.8.2 日常活動與自理能力（如：唔記得點煮飯、唔識理財）
+
+###### 3.3.4.8.3 生活安排與便利性（如：需要他人提醒食藥、覆診）
+
+###### 3.3.4.8.4 經濟負擔與壓力（如：可能做出錯誤財務決定）
+
+###### 3.3.4.8.5 工作與事業發展（如：無法繼續工作）
+
+###### 3.3.4.8.6 個人嗜好與社交生活（如：忘記點進行以往嗜好）
+
+###### 3.3.4.8.7 自我形象與社會標籤（如：因「論盡」被他人輕視）
+
+###### 3.3.4.8.8 家庭關係與角色（如：家人角色轉變為照顧者）
+
+###### 3.3.4.8.9 情緒與心理健康（如：困惑、焦躁、抑鬱）
+
+#### 3.3.5 **跌倒風險**
+
+##### 3.3.5.1 症狀識別與認知（如：步態不穩、頭暈、肌力不足、曾經跌倒）
+
+##### 3.3.5.2 發生機制與原理（如：神經病變影響平衡、視力模糊、体位性低血压、肌少症、藥物副作用導致眩暈）
+
+##### 3.3.5.3 未來風險預測（如：髖部骨折、頭部外傷、長期臥床、住院及手術風險）
+
+##### 3.3.5.4 檢查與診斷方法（如：「起立-行走」計時測試、肌力評估、平衡測試、居家環境風險評估、用藥回顾）
+
+##### 3.3.5.5 風險與誘發因素（如：高齡、視力衰退、環境危險（濕滑地板、雜物）、不合適的鞋履、多重用藥）
+
+##### 3.3.5.6 治療與管理方案（如：肌力與平衡訓練（太極拳）、改善居家照明及防滑、使用助行器、檢視並調整藥物）
+
+##### 3.3.5.7 預後與康復評估（如：活動能力恢復程度、獨立生活能力能否維持、對未來跌倒的恐懼程度）
+
+##### 3.3.5.8 對生活各方面影響
+
+###### 3.3.5.8.1 身體健康與舒適度（如：跌倒後疼痛、因害怕再次跌倒而減少活動）
+
+###### 3.3.5.8.2 日常活動與自理能力（如：不敢獨自沐浴、如廁、買餸）
+
+###### 3.3.5.8.3 生活安排與便利性（如：需要安裝浴室扶手、搬遷至無障礙環境）
+
+###### 3.3.5.8.4 經濟負擔與壓力（如：家居改造費用、聘請看護的開支）
+
+###### 3.3.5.8.5 工作與事業發展（如：提前退休）
+
+###### 3.3.5.8.6 個人嗜好與社交生活（如：拒絕參與所有戶外及社交活動）
+
+###### 3.3.5.8.7 自我形象與社會標籤（如：覺得自己「無用」、「成為負累」）
+
+###### 3.3.5.8.8 家庭關係與角色（如：家人因擔心而過度保護，產生摩擦）
+
+###### 3.3.5.8.9 情緒與心理健康（如：失去自信、產生焦慮、抑鬱）
+
+#### 3.3.6 **抑鬱焦慮**
+
+##### 3.3.6.1 症狀識別與認知（如：持續情緒低落、對以往嗜好失去興趣、煩躁、過度擔憂、心悸、失眠）
+
+##### 3.3.6.2 發生機制與原理（如：長期疾病壓力、血糖波動影響神經遞質、社會心理因素、併發症帶來的困擾）
+
+##### 3.3.6.3 未來風險預測（如：自我管理能力變差（唔記得食藥、唔監測血糖）、生活質量嚴重下降、心血管疾病風險增加）
+
+##### 3.3.6.4 檢查與診斷方法（如：病人健康問卷（PHQ-9）、廣泛性焦慮症量表（GAD-7）、臨床心理學家評估）
+
+##### 3.3.6.5 風險與誘發因素（如：獨居、缺乏社會支持、有精神病史、疼痛控制不佳）
+
+##### 3.3.6.6 治療與管理方案（如：心理治療（認知行為療法）、抗抑鬱/抗焦慮藥物、規律運動、參與支持小組）
+
+##### 3.3.6.7 預後與康復評估（如：情緒症狀改善程度、治療依從性是否提高、社會功能恢復情況）
+
+##### 3.3.6.8 對生活各方面影響
+
+###### 3.3.6.8.1 身體健康與舒適度（如：疲憊感、各種軀體不適）
+
+###### 3.3.6.8.2 日常活動與自理能力（如：無精力進行飲食管理、運動）
+
+###### 3.3.6.8.3 生活安排與便利性（如：需頻繁覆診精神科）
+
+###### 3.3.6.8.4 經濟負擔與壓力（如：心理治療及藥物費用）
+
+###### 3.3.6.8.5 工作與事業發展（如：請假困難、工作效率下降）
+
+###### 3.3.6.8.6 個人嗜好與社交生活（如：社交退縮、自我封閉）
+
+###### 3.3.6.8.7 自我形象與社會標籤（如：病恥感、認為自己「軟弱」）
+
+###### 3.3.6.8.8 家庭關係與角色（如：將負面情緒發泄於家人）
+
+###### 3.3.6.8.9 情緒與心理健康（如：絕望感、無助感、自殺念頭）
+
+#### 3.3.7 **睡眠窒息症**
+
+##### 3.3.7.1 症狀識別與認知（如：嚴重鼻鼾、睡眠中呼吸停頓、醒來口乾、日間極度疲倦、注意力不集中）
+
+##### 3.3.7.2 發生機制與原理（如：肥胖導致上呼吸道在睡眠時受阻塌陷）
+
+##### 3.3.7.3 未來風險預測（如：高血壓、心臟病、中風風險大增；加劇胰島素抵抗，使血糖更難控制）
+
+##### 3.3.7.4 檢查與診斷方法（如：睡眠多項生理檢查（睡眠呼吸監測））
+
+##### 3.3.7.5 風險與誘發因素（如：肥胖、頸圍粗、男性、高齡）
+
+##### 3.3.7.6 治療與管理方案（如：持續正氣壓呼吸機（CPAP）治療、減重、口腔矯正器、手術）
+
+##### 3.3.7.7 預後與康復評估（如：日間精神狀態改善、血壓及血糖控制情況、對CPAP治療的依從性）
+
+##### 3.3.7.8 對生活各方面影響
+
+###### 3.3.7.8.1 身體健康與舒適度（如：晨起頭痛、口乾、因佩戴面罩不適影響睡眠）
+
+###### 3.3.7.8.2 日常活動與自理能力（如：日間過度睏倦影響操作機器或駕駛）
+
+###### 3.3.7.8.3 生活安排與便利性（如：攜帶及使用呼吸機令旅行不便）
+
+###### 3.3.7.8.4 經濟負擔與壓力（如：呼吸機及耗材（面罩、喉管）的昂貴費用）
+
+###### 3.3.7.8.5 工作與事業發展（如：工作效率下降、意外風險增加）
+
+###### 3.3.7.8.6 個人嗜好與社交生活（如：避免與伴侶或朋友過夜）
+
+###### 3.3.7.8.7 自我形象與社會標籤（如：擔心佩戴呼吸機影響形象）
+
+###### 3.3.7.8.8 家庭關係與角色（如：鼻鼾聲影響伴侶睡眠，導致分房）
+
+###### 3.3.7.8.9 情緒與心理健康（如：因長期疲倦及睡眠質素差而煩躁、抑鬱）
+
+#### 3.3.8 **口腔疾病**
+
+##### 3.3.8.1 症狀識別與認知（如：牙齦出血紅腫、口乾、持續口氣、牙齒鬆動、咀嚼疼痛）
+
+##### 3.3.8.2 發生機制與原理（如：高血糖環境利於口腔細菌滋生、唾液分泌減少、微血管病變影響牙周組織血供）
+
+##### 3.3.8.3 未來風險預測（如：嚴重牙周病導致過早脫齒、牙齦膿腫、影響營養攝入）
+
+##### 3.3.8.4 檢查與診斷方法（如：牙科臨床檢查、牙周探針檢查、X光檢查）
+
+##### 3.3.8.5 風險與誘發因素（如：血糖控制不佳、吸煙、口腔衛生不良）
+
+##### 3.3.8.6 治療與管理方案（如：深度洗牙、牙根刮治、抗生素治療、加強口腔衛生（正確刷牙、使用牙線））
+
+##### 3.3.8.7 預後與康復評估（如：牙周健康狀況、咀嚼功能、牙齒保留情況）
+
+##### 3.3.8.8 對生活各方面影響
+
+###### 3.3.8.8.1 身體健康與舒適度（如：牙痛、咀嚼困難影響進食）
+
+###### 3.3.8.8.2 日常活動與自理能力（如：需花費更多時間清潔口腔）
+
+###### 3.3.8.8.3 生活安排與便利性（如：需頻繁前往牙科覆診）
+
+###### 3.3.8.8.4 經濟負擔與壓力（如：牙周治療及鑲牙費用非常昂貴）
+
+###### 3.3.8.8.5 個人嗜好與社交生活（如：因口氣或牙齒外觀避免近距離交談）
+
+###### 3.3.8.8.6 自我形象與社會標籤（如：因缺牙或牙齒不好看而尷尬、不敢開懷大笑）
+
+###### 3.3.8.8.7 情緒與心理健康（如：對口腔狀況感到焦慮）
+
+#### 3.3.9 **皮膚疾病**
+
+##### 3.3.9.1 症狀識別與認知（如：皮膚異常乾燥、痕癢、反復細菌或真菌感染、小腿前出現褐色斑塊（糖尿病性皮膚病）、傷口難癒合）
+
+##### 3.3.9.2 發生機制與原理（如：高血糖導致皮膚脫水、神經病變引起異常感覺、微血管病變影響營養供應、免疫力下降易感染）
+
+##### 3.3.9.3 未來風險預測（如：嚴重皮膚感染、蜂窩組織炎、慢性潰瘍）
+
+##### 3.3.9.4 檢查與診斷方法（如：皮膚科醫生臨床診視、皮膚刮屑鏡檢（查真菌）、細菌培養）
+
+##### 3.3.9.5 風險與誘發因素（如：血糖控制差、周圍神經病變、周圍血管疾病）
+
+##### 3.3.9.6 治療與管理方案（如：嚴格控制血糖、使用保濕劑、外用抗真菌/抗生素藥膏、穿著寬鬆純棉衣物）
+
+##### 3.3.9.7 預後與康復評估（如：感染控制情況、皮膚潰瘍癒合程度、生活質素改善）
+
+##### 3.3.9.8 對生活各方面影響
+
+###### 3.3.9.8.1 身體健康與舒適度（如：持續痕癢嚴重影響睡眠和日常生活）
+
+###### 3.3.9.8.2 日常活動與自理能力（如：因腳部皮膚問題影響行走）
+
+###### 3.3.9.8.3 生活安排與便利性（如：需每日仔細護膚）
+
+###### 3.3.9.8.4 經濟負擔與壓力（如：長期購買專用護膚品及藥膏的開支）
+
+###### 3.3.9.8.5 個人嗜好與社交生活（如：因皮膚外觀（如皮疹）避免游泳等活動）
+
+###### 3.3.9.8.6 自我形象與社會標籤（如：因皮膚狀況感到自卑）
+
+###### 3.3.9.8.7 情緒與心理健康（如：因長期不適和外觀問題感到困擾和沮喪）
+
+---
+
+## 4. 自我管理相關標籤
+
+### 4.1 **血糖監測**
+
+#### 4.1.1 檢測頻率與時機困惑
+
+#### 4.1.2 儀器操作困難（視力、手部功能）
+
+#### 4.1.3 數值解讀與意義理解
+
+### 4.2 **胰島素使用**
+
+#### 4.2.1 注射技術困難
+
+#### 4.2.2 劑量調整困惑
+
+#### 4.2.3 胰島素泵使用複雜性
+
+### 4.3 **飲食管理**
+
+#### 4.3.1 食物選擇困惑
+
+#### 4.3.2 份量控制困難
+
+#### 4.3.3 出外用膳挑戰
+
+### 4.4 **運動管理**
+
+#### 4.4.1 運動方式選擇
+
+#### 4.4.2 運動強度掌握
+
+#### 4.4.3 低血糖預防
+
+### 4.5 **體重管理**
+
+### 4.6 **目標設定**
+
+#### 4.6.1 血糖控制目標
+
+#### 4.6.2 治療期望值
+
+### 4.7 **用藥管理**
+
+#### 4.7.1 藥物整理（如：分藥盒使用、一週藥量分配）
+
+#### 4.7.2 藥品說明書閱讀困難
+
+#### 4.7.3 藥瓶包開啟困難
+
+#### 4.7.4 用藥提醒工具（如：鬧鐘、藥盒、APP）
+
+### 4.8 **日常記錄與追蹤**
+
+#### 4.8.1 血糖日記記錄
+
+#### 4.8.2 症狀記錄
+
+#### 4.8.3 如何向醫生匯報情況
+
+---
+
+## 5. 心理社交相關標籤
+
+### 5.1 **情緒與心理**
+
+#### 5.1.1 焦慮
+
+#### 5.1.2 抑鬱
+
+#### 5.1.3 恐懼
+
+#### 5.1.4 失去尊嚴
+
+#### 5.1.5 疾病接受困難
+
+### 5.2 **社會支援**
+
+#### 5.2.1 家庭支援充足性
+
+#### 5.2.2 照顧負擔擔憂
+
+#### 5.2.3 社區資源獲取
+
+---
+
+## 6. 溝通與信息素養
+
+### 6.1 **信息品質評估**
+
+#### 6.1.1 虛假與誤導信息
+
+#### 6.1.2 信息過載
+
+#### 6.1.3 科學證據等級
+
+### 6.2 **醫患溝通技巧**
+
+#### 6.2.1 就診時間管理
+
+#### 6.2.2 症狀與訴求表達
+
+#### 6.2.3 專業術語
+
+##### 6.2.3.1 診斷名詞（如：「周圍神經病變」即係咩意思？）
+
+##### 6.2.3.2 藥物名稱與機制（如：「SGLT2抑制劑」點樣發揮作用？）
+
+##### 6.2.3.3 治療方案術語（如：「胰島素強化治療」係點樣？）
+
+##### 6.2.3.4 **檢驗指標解讀**
+
+###### 6.2.3.4.1 化驗項目定義與臨床意義（如：HbA1c、eGFR、ACR是什麼？）
+
+###### 6.2.3.4.2 數值解讀與目標範圍（如：我的數值6.5%代表好定唔好？）
+
+###### 6.2.3.4.3 結果單位解釋與換算（如：mmol/L、mg/dL代表什麼？）
+
+###### 6.2.3.4.4  參考範圍的個體化應用（如：點解個參考範圍咁闊？）
+
+
+`;
+
+  // English version (complete translation)
+  const mdEn = `
+# Elderly Diabetes Patient Concerns Tag System
+
+## 1. Diagnostic Related Tags
+
+### 1.1 **Diagnostic Criteria Questions**
+
+### 1.2 **Symptom Questions**
+
+#### 1.2.1 Dry mouth and excessive thirst
+
+#### 1.2.2 Frequent urination
+
+#### 1.2.3 Increased hunger
+
+#### 1.2.4 Weight loss
+
+### 1.3 **Laboratory Test Questions**
+
+#### 1.3.1 Random blood glucose
+
+#### 1.3.2 Fasting blood glucose
+
+#### 1.3.3 2-hour postprandial glucose (glucose tolerance test)
+
+#### 1.3.4 Glycated hemoglobin (HbA1c)
+
+---
+
+## 2. Treatment Tags
+
+### 2.1 Lifestyle modification questions
+
+#### 2.1.1 Medical nutrition therapy
+
+##### 2.1.1.1 Nutritional status assessment
+
+##### 2.1.1.2 Meal planning and menu arrangements
+
+##### 2.1.1.3 Nutrition therapy goals
+
+#### 2.1.2 Exercise therapy
+
+##### 2.1.2.1 Pre-exercise health assessment
+
+##### 2.1.2.2 Exercise type (aerobic, resistance)
+
+##### 2.1.2.3 Exercise intensity
+
+### 2.2 Medication therapy questions
+
+#### 2.2.1 Drug classes
+
+##### 2.2.1.1 Biguanides (e.g., metformin)
+
+##### 2.2.1.2 Sulfonylureas (e.g., gliclazide)
+
+##### 2.2.1.3 DPP-4 inhibitors (e.g., sitagliptin)
+
+##### 2.2.1.4 SGLT2 inhibitors (e.g., empagliflozin)
+
+##### 2.2.1.5 GLP-1 receptor agonists (e.g., liraglutide)
+
+##### 2.2.1.6 Insulin
+
+###### 2.2.1.6.1 Long-acting insulin
+
+###### 2.2.1.6.2 Rapid-acting insulin
+
+###### 2.2.1.6.3 Premixed insulin
+
+##### 2.2.1.7 Other classes
+
+#### 2.2.2 General drug attributes
+
+##### 2.2.2.1 Drug access and availability
+
+##### 2.2.2.2 Cost and financial assistance
+
+##### 2.2.2.3 Efficacy and mechanism of action
+
+#### 2.2.3 Drug benefits
+
+##### 2.2.3.1 Effect on blood glucose control (strong/moderate/weak; fasting/postprandial)
+
+##### 2.2.3.2 Cardiovascular protective effects
+
+##### 2.2.3.3 Impact on weight management (weight loss/neutral/weight gain)
+
+##### 2.2.3.4 Renal protective effects
+
+##### 2.2.3.5 Hypoglycemia risk (low/medium/high)
+
+##### 2.2.3.6 Positive impact on quality of life
+
+###### 2.2.3.6.1 Physical health and comfort
+
+###### 2.2.3.6.2 Daily activities and independence
+
+###### 2.2.3.6.3 Daily routine and convenience
+
+###### 2.2.3.6.4 Financial burden and stress
+
+###### 2.2.3.6.5 Work and career impact
+
+###### 2.2.3.6.6 Hobbies and social life
+
+###### 2.2.3.6.7 Self-image and social stigma
+
+###### 2.2.3.6.8 Family relationships and roles
+
+###### 2.2.3.6.9 Emotional and mental health
+
+#### 2.2.4 Drug side effects
+
+##### 2.2.4.1 Gastrointestinal reactions (nausea, diarrhea, vomiting)
+
+##### 2.2.4.2 Hypoglycemia risk
+
+##### 2.2.4.3 Genitourinary infection risk
+
+##### 2.2.4.4 Weight gain
+
+##### 2.2.4.5 Edema
+
+##### 2.2.4.6 Joint pain
+
+##### 2.2.4.7 Pancreatitis risk
+
+##### 2.2.4.8 Other specific adverse effects
+
+##### 2.2.4.9 Negative impact on quality of life
+
+###### 2.2.4.9.1 Physical health and comfort (e.g., chronic diarrhea)
+
+###### 2.2.4.9.2 Daily activities and independence (e.g., dizziness limiting activity)
+
+###### 2.2.4.9.3 Daily routine and convenience (e.g., frequent bathroom visits)
+
+###### 2.2.4.9.4 Financial burden and stress (e.g., extra care costs)
+
+###### 2.2.4.9.5 Work and career impact (e.g., difficulty at work)
+
+###### 2.2.4.9.6 Hobbies and social life (e.g., avoiding social meals)
+
+###### 2.2.4.9.7 Self-image and stigma
+
+###### 2.2.4.9.8 Family relationships and caregiving roles
+
+###### 2.2.4.9.9 Emotional and mental health
+
+#### 2.2.5 Usage and dosing
+
+##### 2.2.5.1 Timing of administration (pre-/during/post-meal)
+
+##### 2.2.5.2 Dose adjustment
+
+##### 2.2.5.3 Handling missed doses
+
+##### 2.2.5.4 Food-drug interactions
+
+#### 2.2.6 Special populations
+
+##### 2.2.6.1 Dose adjustments for older adults
+
+##### 2.2.6.2 Dosing in renal impairment
+
+##### 2.2.6.3 Dosing in hepatic impairment
+
+#### 2.2.7 Challenges of multiple-drug therapy
+
+##### 2.2.7.1 Drug interactions
+
+##### 2.2.7.2 Complexity of medication regimens
+
+##### 2.2.7.3 Impact on quality of life
+
+###### 2.2.7.3.1 Physical health and comfort
+
+###### 2.2.7.3.2 Daily activities and independence
+
+###### 2.2.7.3.3 Daily routine and convenience
+
+###### 2.2.7.3.4 Financial burden and stress
+
+###### 2.2.7.3.5 Work and career
+
+###### 2.2.7.3.6 Hobbies and social life
+
+###### 2.2.7.3.7 Self-image and social stigma
+
+###### 2.2.7.3.8 Family relationships and roles
+
+###### 2.2.7.3.9 Emotional and mental health
+
+#### 2.2.8 Medication adherence concerns (forgetting meds, fear of side effects)
+
+### 2.3 Non-pharmacological treatment questions
+
+#### 2.3.1 Bariatric surgery questions
+
+#### 2.3.2 Other surgical treatment questions
+
+#### 2.3.3 New technologies / experimental therapies (e.g., insulin pumps, continuous glucose monitoring)
+
+### 2.4 Treatment plan questions
+
+#### 2.4.1 Treatment cost burden
+
+#### 2.4.2 Treatment option selection
+
+#### 2.4.3 Expected treatment outcomes
+
+#### 2.4.4 Potential risks and concerns
+
+#### 2.4.5 Impact on quality of life
+
+##### 2.4.5.1 Physical health and comfort
+
+##### 2.4.5.2 Daily activities and independence
+
+##### 2.4.5.3 Daily routine and convenience
+
+##### 2.4.5.4 Financial burden and stress
+
+##### 2.4.5.5 Work and career impact
+
+##### 2.4.5.6 Hobbies and social life
+
+##### 2.4.5.7 Self-image and social stigma
+
+##### 2.4.5.8 Family relationships and roles
+
+##### 2.4.5.9 Emotional and mental health
+
+#### 2.4.6 Impact on family
+
+##### 2.4.6.1 Family financial pressure
+
+##### 2.4.6.2 Caregiver burden
+
+##### 2.4.6.3 Family relationships and atmosphere
+
+---
+
+## 3. Complication Tags
+
+### 3.1 Acute complications
+
+#### 3.1.1 Hypoglycemia questions
+
+##### 3.1.1.1 Symptom recognition and awareness (tremor, sweating, palpitations)
+
+##### 3.1.1.2 Mechanism and causes (drug overdose, inadequate food intake)
+
+##### 3.1.1.3 Future risk prediction (recurrence risk, severity)
+
+##### 3.1.1.4 Testing and diagnostic methods (blood glucose checks, CGM use)
+
+##### 3.1.1.5 Triggers and risk factors (drug types, renal function)
+
+##### 3.1.1.6 Treatment and management (15-15 rule, glucagon use)
+
+##### 3.1.1.7 Prognosis and recovery assessment (cognitive effects, quality of life)
+
+##### 3.1.1.8 Impact on various life domains
+
+###### 3.1.1.8.1 Physical health and comfort (e.g., tremor, sweating)
+
+###### 3.1.1.8.2 Daily activities and independence (e.g., fear of being alone)
+
+###### 3.1.1.8.3 Daily routine and convenience (e.g., need to carry snacks)
+
+###### 3.1.1.8.4 Financial burden (testing supplies, glucagon)
+
+###### 3.1.1.8.5 Work and career impact
+
+###### 3.1.1.8.6 Hobbies and social life
+
+###### 3.1.1.8.7 Self-image and stigma
+
+###### 3.1.1.8.8 Family relationships and caregiving roles
+
+###### 3.1.1.8.9 Emotional and mental health
+
+#### 3.1.2 Hyperglycemic crises
+
+##### 3.1.2.1 Symptom recognition (thirst, polyuria, altered consciousness)
+
+##### 3.1.2.2 Mechanism (insulin deficiency, stress factors)
+
+##### 3.1.2.3 Future risk prediction (organ damage risk)
+
+##### 3.1.2.4 Testing and diagnosis (ketone testing, blood gas analysis)
+
+##### 3.1.2.5 Triggers and risk factors (treatment interruption, infection)
+
+##### 3.1.2.6 Treatment and management (rehydration, insulin adjustments)
+
+##### 3.1.2.7 Prognosis and recovery assessment (mortality, functional recovery)
+
+##### 3.1.2.8 Impact on life
+
+###### 3.1.2.8.1 Physical health and comfort (e.g., extreme thirst, fatigue)
+
+###### 3.1.2.8.2 Daily activities and independence (e.g., severe cases unable to self-care)
+
+###### 3.1.2.8.3 Disruption to daily routine (e.g., hospitalization)
+
+###### 3.1.2.8.4 Financial burden (emergency and inpatient costs)
+
+###### 3.1.2.8.5 Work and career impact
+
+###### 3.1.2.8.6 Hobbies and social life
+
+###### 3.1.2.8.7 Self-image and stigma
+
+###### 3.1.2.8.8 Family relationships and roles
+
+###### 3.1.2.8.9 Emotional and mental health
+
+#### 3.1.3 Lactic acidosis questions
+
+##### 3.1.3.1 Symptom recognition (rapid breathing, altered consciousness)
+
+##### 3.1.3.2 Mechanism (impaired lactate metabolism)
+
+##### 3.1.3.3 Future risk prediction (recurrence risk)
+
+##### 3.1.3.4 Testing and diagnosis (lactate measurement)
+
+##### 3.1.3.5 Triggers and risk factors (renal impairment, certain drugs)
+
+##### 3.1.3.6 Treatment and management (supportive care, medication adjustments)
+
+##### 3.1.3.7 Prognosis and recovery assessment (organ function impact)
+
+##### 3.1.3.8 Impact on life
+
+###### 3.1.3.8.1 Physical health and comfort (e.g., severe discomfort)
+
+###### 3.1.3.8.2 Daily activities and independence
+
+###### 3.1.3.8.3 Daily routine and convenience
+
+###### 3.1.3.8.4 Financial burden
+
+###### 3.1.3.8.5 Work and career
+
+###### 3.1.3.8.6 Hobbies and social life
+
+###### 3.1.3.8.7 Self-image and stigma
+
+###### 3.1.3.8.8 Family relationships and roles
+
+###### 3.1.3.8.9 Emotional and mental health
+
+### 3.2 Chronic complications
+
+#### 3.2.1 Diabetic kidney disease
+
+##### 3.2.1.1 Symptom recognition (edema, uremic symptoms)
+
+##### 3.2.1.2 Mechanism (glomerular injury, fibrosis)
+
+##### 3.2.1.3 Future risk prediction (rate of renal decline)
+
+##### 3.2.1.4 Testing and diagnosis (urine albumin, eGFR)
+
+##### 3.2.1.5 Triggers and risk factors (hypertension, poor glycemic control)
+
+##### 3.2.1.6 Treatment and management (blood pressure control, ACEi/ARB, SGLT2i)
+
+##### 3.2.1.7 Prognosis and monitoring (progression to ESRD, dialysis)
+
+##### 3.2.1.8 Impact on life
+
+###### 3.2.1.8.1 Physical health and comfort (e.g., edema, fatigue)
+
+###### 3.2.1.8.2 Daily activities and independence
+
+###### 3.2.1.8.3 Daily routine and convenience (e.g., fluid restrictions)
+
+###### 3.2.1.8.4 Financial burden (treatment, dialysis costs)
+
+###### 3.2.1.8.5 Work and career impact
+
+###### 3.2.1.8.6 Hobbies and social life
+
+###### 3.2.1.8.7 Self-image and stigma
+
+###### 3.2.1.8.8 Family relationships and caregiving roles
+
+###### 3.2.1.8.9 Emotional and mental health
+
+#### 3.2.2 Diabetic retinopathy
+
+##### 3.2.2.1 Symptom recognition (blurred vision, floaters)
+
+##### 3.2.2.2 Mechanism (microvascular damage)
+
+##### 3.2.2.3 Future risk prediction (progression to vision loss)
+
+##### 3.2.2.4 Testing and diagnosis (fundoscopy, OCT)
+
+##### 3.2.2.5 Triggers and risk factors (duration of diabetes, poor glycemic control)
+
+##### 3.2.2.6 Treatment and management (laser therapy, anti-VEGF, glycemic control)
+
+##### 3.2.2.7 Prognosis and follow-up (regular screening frequency)
+
+##### 3.2.2.8 Impact on life
+
+###### 3.2.2.8.1 Physical health and comfort (visual impairment)
+
+###### 3.2.2.8.2 Daily activities and independence (driving, reading)
+
+###### 3.2.2.8.3 Daily routine and convenience (e.g., need for magnifiers)
+
+###### 3.2.2.8.4 Financial burden (treatment costs)
+
+###### 3.2.2.8.5 Work and career impact
+
+###### 3.2.2.8.6 Hobbies and social life
+
+###### 3.2.2.8.7 Self-image and stigma
+
+###### 3.2.2.8.8 Family relationships and roles
+
+###### 3.2.2.8.9 Emotional and mental health
+
+#### 3.2.3 Diabetic neuropathy
+
+##### 3.2.3.1 Symptom recognition (numbness, pain, burning sensations)
+
+##### 3.2.3.2 Mechanism (nerve damage from hyperglycemia)
+
+##### 3.2.3.3 Future risk prediction (risk of foot ulcers, amputations)
+
+##### 3.2.3.4 Testing and diagnosis (monofilament, nerve conduction studies)
+
+##### 3.2.3.5 Triggers and risk factors (poor glycemic control, smoking)
+
+##### 3.2.3.6 Treatment and management (glycemic control, pain management, foot care)
+
+##### 3.2.3.7 Prognosis and monitoring (ulcer prevention, foot screening)
+
+##### 3.2.3.8 Impact on life
+
+###### 3.2.3.8.1 Physical health and comfort (chronic pain, loss of sensation)
+
+###### 3.2.3.8.2 Daily activities and independence (risk of injury)
+
+###### 3.2.3.8.3 Daily routine and convenience (shoe modifications, foot care)
+
+###### 3.2.3.8.4 Financial burden (treatment, wound care)
+
+###### 3.2.3.8.5 Work and career impact
+
+###### 3.2.3.8.6 Hobbies and social life
+
+###### 3.2.3.8.7 Self-image and stigma
+
+###### 3.2.3.8.8 Family relationships and support roles
+
+###### 3.2.3.8.9 Emotional and mental health
+
+### 3.3 Microvascular and macrovascular complications (overview)
+
+#### 3.3.1 Cardiovascular disease related concerns
+
+##### 3.3.1.1 Symptom recognition (chest pain, shortness of breath)
+
+##### 3.3.1.2 Mechanism (atherosclerosis, endothelial dysfunction)
+
+##### 3.3.1.3 Future risk prediction (MI/stroke risk)
+
+##### 3.3.1.4 Testing and diagnosis (ECG, troponin, imaging)
+
+##### 3.3.1.5 Triggers and risk factors (lipids, hypertension, smoking)
+
+##### 3.3.1.6 Treatment and prevention (statins, antihypertensives, lifestyle)
+
+##### 3.3.1.7 Prognosis and long-term management
+
+##### 3.3.1.8 Impact on life (physical function, employment, self-care)
+
+## 4. Psychosocial and Quality-of-Life Tags
+
+### 4.1 Emotional response and mental health
+
+#### 4.1.1 Anxiety related to diagnosis and complications
+
+#### 4.1.2 Depression and mood disorders
+
+#### 4.1.3 Diabetes distress and coping strategies
+
+### 4.2 Daily life and social functioning
+
+#### 4.2.1 Lifestyle disruption (meal planning, social eating)
+
+#### 4.2.2 Work and career implications
+
+#### 4.2.3 Family and caregiver dynamics
+
+### 4.3 Financial burden and access to care
+
+#### 4.3.1 Cost of medications and supplies
+
+#### 4.3.2 Insurance and reimbursement issues
+
+#### 4.3.3 Employment-related benefits and support
+
+## 5. Information and Education Tags
+
+### 5.1 Disease knowledge and self-management
+
+#### 5.1.1 Understanding diabetes and its treatment
+
+#### 5.1.2 Self-monitoring of blood glucose and interpretation
+
+#### 5.1.3 Sick-day rules and acute management
+
+### 5.2 Sources of information and trust
+
+#### 5.2.1 Healthcare professionals (doctors, nurses, dietitians)
+
+#### 5.2.2 Peer support and patient education groups
+
+#### 5.2.3 Online resources and reliability concerns
+
+## 6. Practical and Logistics Tags
+
+### 6.1 Appointment and follow-up planning
+
+#### 6.1.1 Frequency of visits
+
+#### 6.1.2 Telemedicine options
+
+#### 6.1.3 Coordination among specialists
+
+### 6.2 Medication and supply logistics
+
+#### 6.2.1 Prescription refills and delivery
+
+#### 6.2.2 Storage and handling (insulin care)
+
+#### 6.2.3 Accessibility to pharmacies and devices
+
+<!-- end of mdEn -->
+`;
+
+  // 当前语言内容引用
+  let currentLang = 'zh';
+  let currentMd = mdZh;
+
+  // On page load, set default language to Traditional Chinese and update button highlight
+  window.addEventListener('DOMContentLoaded', function() {
+    // 强制初始化，确保内容被渲染
+    currentLang = 'zh';
+    currentMd = mdZh;
+    // 更新页面头部标题
+    const h2 = document.querySelector('.main-title');
+    h2.textContent = '老年糖尿病患者知识域标签体系';
+    // 更新语言按钮样式
+    document.getElementById('lang-zh').classList.add('lang-active');
+    document.getElementById('lang-en').classList.remove('lang-active');
+    // 渲染内容
+    renderFromCurrentMd();
+  });
+
+  // 解析 Markdown 标题为树结构
+    function parseTree(md) {
+      const lines = md.split('\n').filter(line => /^#{1,6}\s/.test(line));
+      const root = {children: []};
+      const stack = [{level: 0, node: root}];
+      for (let line of lines) {
+        const match = line.match(/^(#{1,6})\s+(.*)$/);
+        if (!match) continue;
+        const level = match[1].length;
+        const text = match[2].replace(/\*\*/g, '').trim();
+        const node = {text, children: [], level};
+        while (stack.length && stack[stack.length-1].level >= level) stack.pop();
+        stack[stack.length-1].node.children.push(node);
+        stack.push({level, node});
+      }
+      return root.children[0]; // 跳过文档标题
+    }
+
+    // 渲染树结构为 HTML
+    function renderTree(node, parentLevel=1) {
+      const actualLevel = node.level || parentLevel;
+      const labelClass = `tree-label level${actualLevel}`;
+      if (!node.children || node.children.length === 0) {
+        return `<li class="leaf"><span class="${labelClass}">${node.text}</span></li>`;
+      }
+      // 3级标题及以下默认收缩
+      const collapsed = actualLevel >= 3 ? 'collapsed' : 'expanded';
+      let html = `<li class="${collapsed}">
+        <span class="${labelClass}">${node.text}</span>
+        <ul>
+          ${node.children.map(child => renderTree(child, actualLevel+1)).join('')}
+        </ul>
+      </li>`;
+      return html;
+    }
+
+    // 挂载/渲染树函数（根据 currentMd）
+    function renderFromCurrentMd() {
+      const treeData = parseTree(currentMd);
+      document.getElementById('tree').innerHTML = `<ul>${renderTree(treeData)}</ul>`;
+      // 重新绑定展开/收缩交互事件
+      bindExpandCollapseEvents();
+      // 检查是否需要显示滚动提示
+      checkScrollHint();
+    }
+    
+    // 检查是否需要显示滚动提示
+    function checkScrollHint() {
+      const treeElement = document.getElementById('tree');
+      const scrollHint = document.getElementById('scroll-hint');
+      
+      // 检查内容是否超出容器高度
+      if (treeElement.scrollHeight > treeElement.clientHeight) {
+        scrollHint.style.display = 'block';
+      } else {
+        scrollHint.style.display = 'none';
+      }
+    }
+
+    // 展开/收缩交互事件绑定
+    function bindExpandCollapseEvents() {
+      // 移除之前的事件监听器（如果存在）
+      const treeElement = document.getElementById('tree');
+      const newTreeElement = treeElement.cloneNode(true);
+      treeElement.parentNode.replaceChild(newTreeElement, treeElement);
+      
+      // 重新绑定事件
+      document.getElementById('tree').addEventListener('click', function(e) {
+        if (e.target.classList.contains('tree-label')) {
+          const li = e.target.parentElement;
+          if (li.classList.contains('leaf')) return;
+          li.classList.toggle('collapsed');
+          li.classList.toggle('expanded');
+          // 展开/收缩后检查滚动提示
+          setTimeout(checkScrollHint, 100);
+        }
+      });
+    }
+
+    // 语言切换
+    function switchLanguage(lang) {
+      currentLang = lang;
+      currentMd = (lang === 'en') ? mdEn : mdZh;
+      // 更新页面头部标题
+      const h2 = document.querySelector('.main-title');
+      h2.textContent = (lang === 'en') ? 'Diabetes Patient Concerns Tag System' : '老年糖尿病患者知识域标签体系';
+      // 更新右键菜单文本
+      document.querySelectorAll('#contextMenu .menu-item').forEach(item => {
+        const action = item.getAttribute('data-action');
+        const mapping = {
+          expand2: {zh: '展开所有2级标签', en: 'Expand all level 2'},
+          collapse2: {zh: '收缩所有2级标签', en: 'Collapse all level 2'},
+          expand3: {zh: '展开所有3级标签', en: 'Expand all level 3'},
+          collapse3: {zh: '收缩所有3级标签', en: 'Collapse all level 3'},
+          expand4: {zh: '展开所有4级标签', en: 'Expand all level 4'},
+          collapse4: {zh: '收缩所有4级标签', en: 'Collapse all level 4'},
+          expand5: {zh: '展开所有5级标签', en: 'Expand all level 5'},
+          collapse5: {zh: '收缩所有5级标签', en: 'Collapse all level 5'}
+        };
+        if (mapping[action]) item.textContent = mapping[action][lang === 'en' ? 'en' : 'zh'];
+      });
+      // 更新背景色按钮文本
+      const bgButtons = document.querySelectorAll('.bg-switch-bar .bg-btn');
+      const bgTexts = {
+        dark: {zh: '深色', en: 'Dark'},
+        light: {zh: '淺色', en: 'Light'},
+        white: {zh: '純白', en: 'White'}
+      };
+      bgButtons.forEach(btn => {
+        const bgType = btn.classList.contains('dark') ? 'dark' : 
+                      btn.classList.contains('light') ? 'light' : 'white';
+        btn.textContent = bgTexts[bgType][lang === 'en' ? 'en' : 'zh'];
+      });
+      
+      // 更新语言按钮样式（高亮当前语言，立体阴影和边框高亮）
+      document.getElementById('lang-zh').classList.remove('lang-active');
+      document.getElementById('lang-en').classList.remove('lang-active');
+      if (lang === 'zh') {
+        document.getElementById('lang-zh').classList.add('lang-active');
+      } else {
+        document.getElementById('lang-en').classList.add('lang-active');
+      }
+      renderFromCurrentMd();
+    }
+  </script>
+
+  <div id="tree"></div>
+  <!-- 滚动提示 -->
+  <div id="scroll-hint" style="text-align: center; margin-top: 10px; font-size: 14px; color: #666; opacity: 0.8;">
+    <span>💡 提示：树状图内容较多时，可在区域内滚动查看</span>
+  </div>
+  
+  <!-- 偏移量调整说明 -->
+  <!--<div style="text-align: center; margin-top: 5px; font-size: 12px; color: #999; opacity: 0.7;">
+    <span>🔧 右键菜单位置偏移：X=<span id="offset-x">0</span>px, Y=<span id="offset-y">0</span>px | 修改代码中的 MENU_OFFSET_X 和 MENU_OFFSET_Y 值来调整</span>
+  </div>
+  <!-- 右键菜单（按钮风格，自动配色） -->
+  <div id="contextMenu">
+  <div class="menu-item" data-action="expand2">展开所有2级标签</div>
+  <div class="menu-item" data-action="collapse2">收缩所有2级标签</div>
+  <div class="menu-item" data-action="expand3">展开所有3级标签</div>
+  <div class="menu-item" data-action="collapse3">收缩所有3级标签</div>
+  <div class="menu-item" data-action="expand4">展开所有4级标签</div>
+  <div class="menu-item" data-action="collapse4">收缩所有4级标签</div>
+  <div class="menu-item" data-action="expand5">展开所有5级标签</div>
+  <div class="menu-item" data-action="collapse5">收缩所有5级标签</div>
+  </div>
+        <div class="instructions2">
+            <p><strong>請您在下方選項對本部分標簽體系進行評價。</strong> </p>
+        </div>
+  <script>
+    
+    // 右键菜单逻辑
+    const contextMenu = document.getElementById('contextMenu');
+    
+    // 菜单位置偏移量设置 - 可以根据实际情况调整这些值
+    // 常用预设值：
+    // 如果菜单出现在鼠标右下方很远：MENU_OFFSET_X = -200, MENU_OFFSET_Y = -200
+    // 如果菜单出现在鼠标左上方：MENU_OFFSET_X = 50, MENU_OFFSET_Y = 50
+    // 如果菜单位置基本正确但需要微调：MENU_OFFSET_X = 10, MENU_OFFSET_Y = 10
+
+    const MENU_OFFSET_X = -410;  // 水平偏移量（像素）
+    const MENU_OFFSET_Y = -30;  // 垂直偏移量（像素）
+    
+    // 显示当前偏移量设置
+    document.addEventListener('DOMContentLoaded', function() {
+      document.getElementById('offset-x').textContent = MENU_OFFSET_X;
+      document.getElementById('offset-y').textContent = MENU_OFFSET_Y;
+    });
+    document.addEventListener('contextmenu', function(e) {
+      // 只在树区域显示菜单
+      if (e.target.closest('#tree')) {
+        e.preventDefault();
+        
+        // 先显示菜单以获取其尺寸
+        contextMenu.style.display = 'block';
+        contextMenu.style.visibility = 'hidden'; // 临时隐藏以获取尺寸
+        
+        const menuWidth = contextMenu.offsetWidth;
+        const menuHeight = contextMenu.offsetHeight;
+        const windowWidth = window.innerWidth;
+        const windowHeight = window.innerHeight;
+        
+        // 获取鼠标位置 - 使用clientX和clientY，但需要考虑滚动偏移
+        const mouseX = e.clientX + window.pageXOffset + MENU_OFFSET_X;
+        const mouseY = e.clientY + window.pageYOffset + MENU_OFFSET_Y;
+        
+        // 计算菜单位置，确保不超出屏幕边界
+        let finalX = mouseX;
+        let finalY = mouseY;
+        
+        // 如果菜单会超出右边界，则向左显示
+        if (mouseX + menuWidth > windowWidth + window.pageXOffset) {
+          finalX = mouseX - menuWidth;
+        }
+        
+        // 如果菜单会超出下边界，则向上显示
+        if (mouseY + menuHeight > windowHeight + window.pageYOffset) {
+          finalY = mouseY - menuHeight;
+        }
+        
+        // 确保菜单不会超出左边界和上边界
+        if (finalX < window.pageXOffset) finalX = window.pageXOffset + 10;
+        if (finalY < window.pageYOffset) finalY = window.pageYOffset + 10;
+        
+        // 设置菜单位置并显示
+        contextMenu.style.left = finalX + 'px';
+        contextMenu.style.top = finalY + 'px';
+        contextMenu.style.visibility = 'visible';
+      } else {
+        contextMenu.style.display = 'none';
+      }
+    });
+    document.addEventListener('click', function(e) {
+      if (!e.target.closest('#contextMenu')) {
+        contextMenu.style.display = 'none';
+        contextMenu.style.visibility = 'visible'; // 重置visibility属性
+      }
+    });
+
+    // 展开/收缩所有指定级别标签（无论父级是否展开，强制设置当前级别li的class）
+    function setExpandCollapse(level, expand) {
+      // 如果是展开5级标签，先展开所有2~4级标签
+      if (level === 5 && expand) {
+        [2,3,4].forEach(lv => {
+          document.querySelectorAll(`#tree .level${lv}`).forEach(label => {
+            const li = label.parentElement;
+            if (li.classList.contains('leaf')) return;
+            li.classList.remove('collapsed');
+            li.classList.add('expanded');
+          });
+        });
+      }
+      
+      const labels = document.querySelectorAll(`#tree .level${level}`);
+      labels.forEach(label => {
+        const li = label.parentElement;
+        if (li.classList.contains('leaf')) return;
+        li.classList.remove('collapsed', 'expanded');
+        li.classList.add(expand ? 'expanded' : 'collapsed');
+        // 若展开，递归展开所有父级li
+        if (expand) {
+          let parentLi = li.parentElement.closest('li');
+          while (parentLi) {
+            parentLi.classList.remove('collapsed');
+            parentLi.classList.add('expanded');
+            parentLi = parentLi.parentElement.closest('li');
+          }
+        }
+      });
+    }
+
+    contextMenu.addEventListener('click', function(e) {
+      if (!e.target.classList.contains('menu-item')) return;
+      const action = e.target.getAttribute('data-action');
+      if (action === 'expand2') setExpandCollapse(2, true);
+      if (action === 'collapse2') setExpandCollapse(2, false);
+      if (action === 'expand3') setExpandCollapse(3, true);
+      if (action === 'collapse3') setExpandCollapse(3, false);
+      if (action === 'expand4') setExpandCollapse(4, true);
+      if (action === 'collapse4') setExpandCollapse(4, false);
+      if (action === 'expand5') setExpandCollapse(5, true);
+      if (action === 'collapse5') setExpandCollapse(5, false);
+      contextMenu.style.display = 'none';
+      // 右键菜单操作后检查滚动提示
+      setTimeout(checkScrollHint, 200);
+    });
+  </script>
+</div>
+</body>
+</html>
